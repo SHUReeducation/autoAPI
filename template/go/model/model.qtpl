@@ -16,7 +16,7 @@ type {%v table.Name.PascalCase() %} struct {
 func Create(object {%v table.Name.PascalCase() %}) ({%v table.Name.PascalCase() %}, error) {
     row := infrastructure.DB.QueryRow(`
     INSERT INTO {%v table.Name.PascalCase() %}(id, {% for i, field := range table.Fields %}{%v field.Name.SnakeCase() %}{% if i + 1 < len(table.Fields) %}, {% endif %}{% endfor %})
-    VALUES ($1, {% for i := range table.Fields %}${%d (i+2) %}{% if i + 1 < len(table.Fields) %}, {% endif %}{% endfor %}) RETURING id;`, object.Id, {% for i, field := range table.Fields %}object.{%v field.Name.PascalCase() %}{% if i + 1 < len(table.Fields) %}, {% endif %}{% endfor %})
+    VALUES ($1, {% for i := range table.Fields %}${%d (i+2) %}{% if i + 1 < len(table.Fields) %}, {% endif %}{% endfor %}) RETURNING id;`, object.Id, {% for i, field := range table.Fields %}object.{%v field.Name.PascalCase() %}{% if i + 1 < len(table.Fields) %}, {% endif %}{% endfor %})
     err := row.Scan(&object.Id)
     return object, err
 }

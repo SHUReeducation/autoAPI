@@ -1,0 +1,17 @@
+{% import "autoAPI/table" %}
+
+{% func Dockerfile(table table.Table) %}
+FROM golang:1.14-alpine as builder
+RUN apk add git
+COPY . /go/src/{%v table.Name.CamelCase() %}
+ENV GO111MODULE on
+WORKDIR /go/src/{%v table.Name.CamelCase() %}
+RUN go mod tidy && go build
+
+FROM alpine
+COPY --from=builder /go/src/{%v table.Name.CamelCase() %}/{%v table.Name.CamelCase() %} /
+WORKDIR /
+CMD ./{%v table.Name.CamelCase() %}
+ENV PORT 8000
+EXPOSE 8000
+{% endfunc %}

@@ -1,0 +1,18 @@
+{% import "autoAPI/table" %}
+
+{% func GitHubActionDocker(table table.Table) %}
+name: Docker Image CI
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build the Docker image
+        run: |
+          docker build . -t {%v table.Name.KebabCase() %}
+          docker tag {%v table.Name.KebabCase() %} ${{ secrets.DOCKER_USERNAME }}/{%v table.Name.KebabCase() %}:${GITHUB_SHA}
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login --username "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          docker push ${{ secrets.DOCKER_USERNAME }}/{%v table.Name.KebabCase() %}
+{% endfunc %}

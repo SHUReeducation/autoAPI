@@ -1,10 +1,12 @@
 //go:generate go get -u github.com/valyala/quicktemplate/qtc
-//go:generate qtc -dir=./template/go/
+//go:generate qtc -dir=./template/
 
 package main
 
 import (
 	"autoAPI/table"
+	"autoAPI/template/general"
+	"autoAPI/template/go/dockerfile"
 	"autoAPI/template/go/goMod"
 	"autoAPI/template/go/handler"
 	"autoAPI/template/go/infrastructure"
@@ -21,12 +23,99 @@ func GenerateAt(table table.Table, dirPath string) error {
 	if err != nil {
 		return err
 	}
-	err = os.Mkdir(dirPath, 0755)
+	if err = os.Mkdir(dirPath, 0755); err != nil {
+		return err
+	}
+	if err = renderDB(dirPath); err != nil {
+		return err
+	}
+	if err = renderModel(table, dirPath); err != nil {
+		return err
+	}
+	if err = renderHandler(table, dirPath); err != nil {
+		return err
+	}
+	if err = renderMain(table, dirPath); err != nil {
+		return err
+	}
+	if err = renderGitHubActions(table, dirPath); err != nil {
+		return err
+	}
+	if err = renderGoMod(table, dirPath); err != nil {
+		return err
+	}
+	err = renderDockerfile(table, dirPath)
+	return err
+}
+
+func renderDockerfile(table table.Table, dirPath string) error {
+	dockerFileContent := dockerfile.Dockerfile(table)
+	dockerfileFile, err := os.Create(filepath.Join(dirPath, "Dockerfile"))
 	if err != nil {
 		return err
 	}
+	defer dockerfileFile.Close()
+	_, err = dockerfileFile.WriteString(dockerFileContent)
+	return err
+}
+
+func renderGoMod(table table.Table, dirPath string) error {
+	modFileContent := goMod.GoMod(table)
+	modFile, err := os.Create(filepath.Join(dirPath, "go.mod"))
+	if err != nil {
+		return err
+	}
+	defer modFile.Close()
+	_, err = modFile.WriteString(modFileContent)
+	return err
+}
+
+func renderMain(table table.Table, dirPath string) error {
+	mainFileContent := mainTemplate.MainTemplate(table)
+	mainFile, err := os.Create(filepath.Join(dirPath, "main.go"))
+	if err != nil {
+		return err
+	}
+	defer mainFile.Close()
+	_, err = mainFile.WriteString(mainFileContent)
+	return err
+}
+
+func renderHandler(table table.Table, dirPath string) error {
+	handlerDir := filepath.Join(dirPath, "handler")
+	err := os.Mkdir(handlerDir, 0755)
+	if err != nil {
+		return err
+	}
+	handlerFileContent := handler.Handler(table)
+	handlerFile, err := os.Create(filepath.Join(handlerDir, "handler.go"))
+	if err != nil {
+		return err
+	}
+	defer handlerFile.Close()
+	_, err = handlerFile.WriteString(handlerFileContent)
+	return err
+}
+
+func renderModel(table table.Table, dirPath string) error {
+	modelDir := filepath.Join(dirPath, "model")
+	err := os.Mkdir(modelDir, 0755)
+	if err != nil {
+		return err
+	}
+	modelFileContent := model.Model(table)
+	modelFile, err := os.Create(filepath.Join(modelDir, "model.go"))
+	if err != nil {
+		return err
+	}
+	defer modelFile.Close()
+	_, err = modelFile.WriteString(modelFileContent)
+	return err
+}
+
+func renderDB(dirPath string) error {
 	infrastructureDir := filepath.Join(dirPath, "infrastructure")
-	err = os.Mkdir(infrastructureDir, 0755)
+	err := os.Mkdir(infrastructureDir, 0755)
 	if err != nil {
 		return err
 	}
@@ -37,63 +126,27 @@ func GenerateAt(table table.Table, dirPath string) error {
 	}
 	defer dbFile.Close()
 	_, err = dbFile.WriteString(dbFileContent)
-	if err != nil {
-		return err
-	}
-	modelDir := filepath.Join(dirPath, "model")
-	err = os.Mkdir(modelDir, 0755)
-	if err != nil {
-		return err
-	}
-	modelFileContent := model.Model(table)
-	modelFile, err := os.Create(filepath.Join(modelDir, "model.go"))
-	defer modelFile.Close()
-	if err != nil {
-		return err
-	}
-	_, err = modelFile.WriteString(modelFileContent)
-	if err != nil {
-		return err
-	}
+	return err
+}
 
-	handlerDir := filepath.Join(dirPath, "handler")
-	err = os.Mkdir(handlerDir, 0755)
+func renderGitHubActions(table table.Table, dirPath string) error {
+	githubActionDir := filepath.Join(dirPath, ".github")
+	if err := os.Mkdir(githubActionDir, 0755); err != nil {
+		return err
+	}
+	githubActionDir = filepath.Join(githubActionDir, "workflow")
+	if err := os.Mkdir(githubActionDir, 0755); err != nil {
+		return err
+	}
+	githubActionFileContent := general.GitHubActionDocker(table)
+	dbFile, err := os.Create(filepath.Join(githubActionDir, "dockerimage.yml"))
 	if err != nil {
 		return err
 	}
-	handlerFileContent := handler.Handler(table)
-	handlerFile, err := os.Create(filepath.Join(handlerDir, "handler.go"))
-	defer handlerFile.Close()
-	if err != nil {
-		return err
-	}
-	_, err = handlerFile.WriteString(handlerFileContent)
-	if err != nil {
-		return err
-	}
+	defer dbFile.Close()
+	_, err = dbFile.WriteString(githubActionFileContent)
+	return err
 
-	mainFileContent := mainTemplate.MainTemplate(table)
-	mainFile, err := os.Create(filepath.Join(dirPath, "main.go"))
-	defer mainFile.Close()
-	if err != nil {
-		return err
-	}
-	_, err = mainFile.WriteString(mainFileContent)
-	if err != nil {
-		return err
-	}
-
-	modFileContent := goMod.GoMod(table)
-	modFile, err := os.Create(filepath.Join(dirPath, "go.mod"))
-	defer modFile.Close()
-	if err != nil {
-		return err
-	}
-	_, err = modFile.WriteString(modFileContent)
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 func main() {
@@ -101,7 +154,7 @@ func main() {
 		Name: withCase.New("student"),
 		Fields: []table.Field{
 			{Name: withCase.New("name"), GoTypeName: "string"},
-			{Name: withCase.New("Age"), GoTypeName: "time.Time"},
+			{Name: withCase.New("Age"), GoTypeName: "int16"},
 		},
 	}
 	err := GenerateAt(m, "/tmp/student")
