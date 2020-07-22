@@ -1,0 +1,7 @@
+{% import "autoAPI/table" %}
+
+{% func GoMod(table table.Table) %}
+module {%v table.Name.CamelCase() %}
+
+go 1.14
+{% endfunc %}

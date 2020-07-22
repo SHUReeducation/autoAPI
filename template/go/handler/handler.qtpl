@@ -1,0 +1,123 @@
+{% import "autoAPI/table" %}
+
+{% func Handler(table table.Table) %}
+package handler
+
+import (
+    "{%v table.Name.CamelCase() %}/model"
+    "encoding/json"
+    "io/ioutil"
+    "log"
+    "net/http"
+    "strconv"
+    "github.com/gorilla/mux"
+)
+
+func PostHandler(w http.ResponseWriter, r *http.Request) {
+    w.Header().Add("Content-Type", "application/json")
+    body, _ := ioutil.ReadAll(r.Body)
+    var toCreate model.{%v table.Name.PascalCase() %}
+    _ = json.Unmarshal(body, &toCreate)
+    result, err := model.Create(toCreate)
+    if err != nil {
+        log.Println("Create {%v table.Name.PascalCase() %} failed")
+        _, _ = w.Write([]byte(err.Error()))
+        w.WriteHeader(http.StatusInternalServerError)
+        return
+    } else {
+        log.Println("{%v table.Name.PascalCase() %} ", result, " created")
+    }
+    response, err := json.Marshal(result)
+    _, _ = w.Write(response)
+}
+
+func GetHandler(w http.ResponseWriter, r *http.Request) {
+    w.Header().Add("Content-Type", "application/json")
+    idStr := mux.Vars(r)["id"]
+    id, err := strconv.ParseInt(idStr, 10, 64)
+    if err != nil {
+        w.WriteHeader(http.StatusBadRequest)
+        return
+    }
+    object, err := model.Get(id)
+    if err != nil {
+        w.WriteHeader(http.StatusNotFound)
+        return
+    }
+    resp, _ := json.Marshal(object)
+    _, _ = w.Write(resp)
+}
+
+func ScanHandler(w http.ResponseWriter, r *http.Request) {
+    w.Header().Add("Content-Type", "application/json")
+    limitStr := r.URL.Query().Get("limit")
+    limit, err := strconv.ParseUint(limitStr, 10, 64)
+    if err != nil {
+        log.Println(err)
+        w.WriteHeader(http.StatusBadRequest)
+        _, _ = w.Write([]byte(err.Error()))
+        return
+    }
+    offsetStr := r.URL.Query().Get("offset")
+    offset, err := strconv.ParseUint(offsetStr, 10, 64)
+    if err != nil {
+        log.Println(err)
+        w.WriteHeader(http.StatusBadRequest)
+        _, _ = w.Write([]byte(err.Error()))
+        return
+    }
+    result, err := model.Scan(offset, limit)
+    if err != nil {
+        log.Println(err)
+        w.WriteHeader(http.StatusInternalServerError)
+        _, _ = w.Write([]byte(err.Error()))
+        return
+    }
+    var body []byte
+    if len(result) != 0 {
+        body, _ = json.Marshal(result)
+    } else {
+        body = []byte("[]")
+    }
+    _, _ = w.Write(body)
+}
+
+func PutHandler(w http.ResponseWriter, r *http.Request) {
+    w.Header().Add("Content-Type", "application/json")
+    body, _ := ioutil.ReadAll(r.Body)
+    var toUpdate model.{%v table.Name.PascalCase() %}
+    _ = json.Unmarshal(body, &toUpdate)
+    err := model.Put(toUpdate)
+    if err != nil {
+        log.Println("Update {%v table.Name.CamelCase() %} failed")
+        _, _ = w.Write([]byte(err.Error()))
+        w.WriteHeader(http.StatusInternalServerError)
+        return
+    } else {
+        log.Println("{%v table.Name.PascalCase() %}", toUpdate, "updated")
+    }
+}
+
+func DeleteHandler(w http.ResponseWriter, r *http.Request) {
+    w.Header().Add("Content-Type", "application/json")
+    idStr := mux.Vars(r)["id"]
+    id, err := strconv.ParseInt(idStr, 10, 64)
+    if err != nil {
+        w.WriteHeader(http.StatusBadRequest)
+        return
+    }
+    err = model.Delete(id)
+    if err != nil {
+        log.Println("Update {%v table.Name.CamelCase() %} failed")
+        _, _ = w.Write([]byte(err.Error()))
+        w.WriteHeader(http.StatusInternalServerError)
+        return
+    } else {
+        log.Println("{%v table.Name.PascalCase() %} id=", id, " updated")
+    }
+}
+
+func PingPongHandler(w http.ResponseWriter, r *http.Request) {
+	_, _ = w.Write([]byte("pong"))
+}
+{% endfunc %}

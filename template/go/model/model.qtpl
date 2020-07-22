@@ -1,0 +1,69 @@
+{% import "autoAPI/table" %}
+
+{% func Model(table table.Table) %}
+package model
+
+import (
+     "{%v table.Name.CamelCase() %}/infrastructure"
+)
+
+type {%v table.Name.PascalCase() %} struct {
+    Id int64 `json:"id"`
+    {% for _, field := range table.Fields %}{%v field.Name.PascalCase() %} {%s field.GoTypeName %} `json:"{%v field.Name.SnakeCase() %}"`
+    {% endfor %}
+}
+
+func Create(object {%v table.Name.PascalCase() %}) ({%v table.Name.PascalCase() %}, error) {
+    row := infrastructure.DB.QueryRow(`
+    INSERT INTO {%v table.Name.PascalCase() %}(id, {% for i, field := range table.Fields %}{%v field.Name.SnakeCase() %}{% if i + 1 < len(table.Fields) %}, {% endif %}{% endfor %})
+    VALUES ($1, {% for i := range table.Fields %}${%d (i+2) %}{% if i + 1 < len(table.Fields) %}, {% endif %}{% endfor %}) RETURING id;`, object.Id, {% for i, field := range table.Fields %}object.{%v field.Name.PascalCase() %}{% if i + 1 < len(table.Fields) %}, {% endif %}{% endfor %})
+    err := row.Scan(&object.Id)
+    return object, err
+}
+
+func Get(id int64) ({%v table.Name.PascalCase() %}, error) {
+    row := infrastructure.DB.QueryRow(`
+		SELECT {% for i, field := range table.Fields %}{%v field.Name.SnakeCase() %}{% if i + 1 < len(table.Fields) %}, {% endif %}{% endfor %}
+		FROM {%v table.Name.SnakeCase() %} WHERE id=$1;`, id)
+    object := {%v table.Name.PascalCase() %} { Id: id }
+    err := row.Scan({% for i, field := range table.Fields %}&object.{%v field.Name.PascalCase() %}{% if i + 1 < len(table.Fields) %}, {% endif %}{% endfor %})
+    return object, err
+}
+
+func Scan(offset uint64, limit uint64) ([]{%v table.Name.PascalCase() %}, error) {
+    rows, err := infrastructure.DB.Query(`
+        SELECT id, {% for i, field := range table.Fields %}{%v field.Name.SnakeCase() %}{% if i + 1 < len(table.Fields) %}, {% endif %}{% endfor %}
+        FROM {%v table.Name.SnakeCase() %}
+        LIMIT $1 OFFSET $2;`, limit, offset)
+    if err != nil {
+        return nil, err
+    }
+    var result []{%v table.Name.PascalCase() %}
+    for rows.Next() {
+        var scanned {%v table.Name.PascalCase() %}
+        err := rows.Scan(&scanned.Id, {% for i, field := range table.Fields %} &scanned.{%v field.Name.PascalCase() %}{% if i + 1 < len(table.Fields) %}, {% endif %}{% endfor %})
+        if err != nil {
+            return result, err
+        }
+        result = append(result, scanned)
+    }
+    return result, nil
+}
+
+func Put(object {%v table.Name.PascalCase() %}) error {
+    _, err := infrastructure.DB.Exec(`
+        UPDATE {%v table.Name.SnakeCase() %}
+        SET {% for i, field := range table.Fields %}{%v field.Name.SnakeCase() %}=${%d i + 1 %}{% if i + 1 < len(table.Fields) %}, {% endif %}{% endfor %}
+        WHERE id=$1;
+        `, object.Id, {% for i, field := range table.Fields %}object.{%v field.Name.PascalCase() %}{% if i + 1 < len(table.Fields) %}, {% endif %}{% endfor %})
+    return err
+}
+
+func Delete(id int64) error {
+    _, err := infrastructure.DB.Exec(`
+        DELETE FROM {%v table.Name.SnakeCase() %} WHERE id=$1;
+        `, id)
+    return err
+}
+
+{% endfunc %}
