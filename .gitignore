@@ -97,3 +97,4 @@ Temporary Items
 .history/
 .idea
 template/**/*.qtpl.go
+autoAPI
