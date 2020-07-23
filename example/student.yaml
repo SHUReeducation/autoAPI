@@ -1,0 +1,7 @@
+dbengin: pgsql
+tablename: student
+fields:
+  - name: name
+    type: varchar(24)
+  - name: birthday
+    type: date

@@ -12,8 +12,7 @@ import (
 	"autoAPI/template/go/infrastructure"
 	"autoAPI/template/go/mainTemplate"
 	"autoAPI/template/go/model"
-	"autoAPI/withCase"
-	"fmt"
+	"autoAPI/yamlParser"
 	"os"
 	"path/filepath"
 )
@@ -150,13 +149,7 @@ func renderGitHubActions(table table.Table, dirPath string) error {
 }
 
 func main() {
-	m := table.Table{
-		Name: withCase.New("student"),
-		Fields: []table.Field{
-			{Name: withCase.New("name"), GoTypeName: "string"},
-			{Name: withCase.New("Age"), GoTypeName: "int16"},
-		},
-	}
-	err := GenerateAt(m, "/tmp/student")
-	fmt.Println(err)
+	f, _ := yamlParser.Load("./example/student.yaml")
+	m := table.FromYaml(f)
+	_ = GenerateAt(m, "/tmp/student")
 }
