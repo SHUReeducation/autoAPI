@@ -5,6 +5,8 @@ package model
 
 import (
      "{%v table.Name.CamelCase() %}/infrastructure"
+     {% if table.ExtraImport() != nil %}{% for _, extra := range table.ExtraImport() %}"{%s extra %}"
+     {% endfor %}{% endif %}
 )
 
 type {%v table.Name.PascalCase() %} struct {

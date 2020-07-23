@@ -11,9 +11,37 @@ type Field struct {
 	GoTypeName string
 }
 
+var importMap = map[string]string{
+	"time.Time": "time",
+}
+
+func (f Field) ExtraImport() *string {
+	result, contains := importMap[f.GoTypeName]
+	if contains {
+		return &result
+	} else {
+		return nil
+	}
+}
+
 type Table struct {
 	Name   withCase.WithCase
 	Fields []Field
+}
+
+func (table Table) ExtraImport() []string {
+	set := map[string]bool{}
+	for _, field := range table.Fields {
+		forField := field.ExtraImport()
+		if forField != nil {
+			set[*forField] = true
+		}
+	}
+	var result []string
+	for entry := range set {
+		result = append(result, entry)
+	}
+	return result
 }
 
 func FromYaml(yamlFile yamlParser.YamlFile) Table {
