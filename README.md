@@ -4,6 +4,8 @@
 
 Create an CRUD API server directly from a table in database or a yaml file.
 
+See our [wiki](https://github.com/SHUReeducation/autoAPI/wiki) for more infomation.
+
 ## Things we'll never ever ever ever ever support
 
 ### DBMS
@@ -12,4 +14,4 @@ Create an CRUD API server directly from a table in database or a yaml file.
 
 ### Language
 
-- Java (CAUSE IT IS THE WORST LANGUAGE IN THIS UNIVERSE!!!)
+- Java (**CAUSE IT IS THE WORST LANGUAGE IN THIS UNIVERSE!!!**)
