@@ -98,3 +98,4 @@ Temporary Items
 .idea
 template/**/*.qtpl.go
 autoAPI
+example/student/

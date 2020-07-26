@@ -28,6 +28,7 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
         log.Println("{%v table.Name.PascalCase() %} ", result, " created")
     }
     response, err := json.Marshal(result)
+    w.WriteHeader(http.StatusCreated)
     _, _ = w.Write(response)
 }
 
@@ -87,7 +88,7 @@ func PutHandler(w http.ResponseWriter, r *http.Request) {
     body, _ := ioutil.ReadAll(r.Body)
     var toUpdate model.{%v table.Name.PascalCase() %}
     _ = json.Unmarshal(body, &toUpdate)
-    err := model.Put(toUpdate)
+    result, err := model.Put(toUpdate)
     if err != nil {
         log.Println("Update {%v table.Name.CamelCase() %} failed")
         _, _ = w.Write([]byte(err.Error()))
@@ -95,6 +96,9 @@ func PutHandler(w http.ResponseWriter, r *http.Request) {
         return
     } else {
         log.Println("{%v table.Name.PascalCase() %}", toUpdate, "updated")
+        resp, _ := json.Marshal(result)
+        _, _ = w.Write(resp)
+        w.WriteHeader(http.StatusCreated)
     }
 }
 
@@ -114,6 +118,7 @@ func DeleteHandler(w http.ResponseWriter, r *http.Request) {
         return
     } else {
         log.Println("{%v table.Name.PascalCase() %} id=", id, " updated")
+        w.WriteHeader(http.StatusNoContent)
     }
 }
 

@@ -52,13 +52,15 @@ func Scan(offset uint64, limit uint64) ([]{%v table.Name.PascalCase() %}, error)
     return result, nil
 }
 
-func Put(object {%v table.Name.PascalCase() %}) error {
-    _, err := infrastructure.DB.Exec(`
+func Put(object {%v table.Name.PascalCase() %}) ({%v table.Name.PascalCase() %}, error) {
+    row := infrastructure.DB.QueryRow(`
         UPDATE {%v table.Name.SnakeCase() %}
-        SET {% for i, field := range table.Fields %}{%v field.Name.SnakeCase() %}=${%d i + 1 %}{% if i + 1 < len(table.Fields) %}, {% endif %}{% endfor %}
-        WHERE id=$1;
+        SET {% for i, field := range table.Fields %}{%v field.Name.SnakeCase() %}=${%d i + 2 %}{% if i + 1 < len(table.Fields) %}, {% endif %}{% endfor %}
+        WHERE id=$1
+        RETURNING id{% for _, field := range table.Fields %}, {%v field.Name.SnakeCase() %}{% endfor %};
         `, object.Id, {% for i, field := range table.Fields %}object.{%v field.Name.PascalCase() %}{% if i + 1 < len(table.Fields) %}, {% endif %}{% endfor %})
-    return err
+    err := row.Scan(&object.Id, {% for i, field := range table.Fields %}&object.{%v field.Name.PascalCase() %}{% if i + 1 < len(table.Fields) %}, {% endif %}{% endfor %})
+    return object, err
 }
 
 func Delete(id int64) error {
