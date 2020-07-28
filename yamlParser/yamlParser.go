@@ -7,11 +7,14 @@ import (
 )
 
 type YamlFile struct {
+	Version   string `yaml:"version"`
+	DbEngine  string `yaml:"dbengine"`
 	TableName string `yaml:"tablename"`
 	Fields    []struct {
 		Name string `yaml:"name"`
 		Type string `yaml:"type"`
 	}
+	DockerUsername string `yaml:"docker-username"`
 }
 
 func New(data []byte) (YamlFile, error) {
