@@ -4,6 +4,7 @@
 package main
 
 import (
+	"autoAPI/devops"
 	"autoAPI/generator"
 	"autoAPI/table"
 	"autoAPI/yamlParser"
@@ -34,8 +35,13 @@ func main() {
 				return err
 			}
 			m := table.FromYaml(f)
+			metaData := devops.FromYaml(f)
 			gen := generator.GoGenerator{}
-			err = gen.Generate(m, c.String("output"))
+			devopsGen := generator.DevopsGenerator{}
+			if err = gen.Generate(m, c.String("output")); err != nil {
+				return err
+			}
+			err = devopsGen.Generate(metaData, m, c.String("output"))
 			return err
 		},
 	}).Run(os.Args)

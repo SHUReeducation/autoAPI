@@ -2,7 +2,6 @@ package generator
 
 import (
 	"autoAPI/table"
-	"autoAPI/template/general"
 	"autoAPI/template/go/dockerfile"
 	"autoAPI/template/go/goMod"
 	"autoAPI/template/go/handler"
@@ -96,26 +95,6 @@ func renderDB(dirPath string) error {
 	return err
 }
 
-func renderGitHubActions(table table.Table, dirPath string) error {
-	githubActionDir := filepath.Join(dirPath, ".github")
-	if err := os.Mkdir(githubActionDir, 0755); err != nil {
-		return err
-	}
-	githubActionDir = filepath.Join(githubActionDir, "workflow")
-	if err := os.Mkdir(githubActionDir, 0755); err != nil {
-		return err
-	}
-	githubActionFileContent := general.GitHubActionDocker(table)
-	dbFile, err := os.Create(filepath.Join(githubActionDir, "dockerimage.yml"))
-	if err != nil {
-		return err
-	}
-	defer dbFile.Close()
-	_, err = dbFile.WriteString(githubActionFileContent)
-	return err
-
-}
-
 func (generator GoGenerator) Generate(table table.Table, dirPath string) error {
 	err := os.RemoveAll(dirPath)
 	if err != nil {
@@ -134,9 +113,6 @@ func (generator GoGenerator) Generate(table table.Table, dirPath string) error {
 		return err
 	}
 	if err = renderMain(table, dirPath); err != nil {
-		return err
-	}
-	if err = renderGitHubActions(table, dirPath); err != nil {
 		return err
 	}
 	if err = renderGoMod(table, dirPath); err != nil {
