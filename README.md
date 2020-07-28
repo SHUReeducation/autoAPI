@@ -35,7 +35,7 @@ See our [wiki](https://github.com/SHUReeducation/autoAPI/wiki) for more infomati
     
 3. Create a new branch and do some coding to fix issues, or just create what you like.
 
-4. build
+4. Build
 
     ```shell
     make build
