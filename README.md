@@ -21,18 +21,20 @@ See our [wiki](https://github.com/SHUReeducation/autoAPI/wiki) for more infomati
 1. Git
 
     Fork this project. And Clone to local.
-2. Deal with dependence
+ 
+2. Deal with dependency
 
-    You need `go`, `make`, etc. If you have problem with your host environment, well become to open an issue
-    for getting some suggestions.
+    You need `go`, `make`, etc. If you have problem with your host environment, welcome to open an issue.
     ```shell script
     go get -u github.com/valyala/quicktemplate
     go get -u github.com/valyala/quicktemplate/qtc
     ```
     After install QTC, You may need a new terminal session to flush your $PATH.
-3. Open a new branch and code to fulfil some issues, or just what you like.
+    
+3. Open a new branch and code to fix issues, or just create what you like.
+
 4. build
     ```shell script
     make build
     ```
-5. Pull Request to this repo
+5. Create a pull request to this repo
