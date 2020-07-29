@@ -14,6 +14,7 @@ type YamlFile struct {
 		Name string `yaml:"name"`
 		Type string `yaml:"type"`
 	}
+	GithubActions  string `yaml:"github-actions"`
 	DockerUsername string `yaml:"docker-username"`
 }
 
