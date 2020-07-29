@@ -76,7 +76,7 @@ Temporary Items
 *.so
 *.dylib
 
-# Test binary, built with `golang test -c`
+# Test binary, built with `go test -c`
 *.test
 
 # Output of the golang coverage tool, specifically when used with LiteIDE
