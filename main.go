@@ -34,11 +34,14 @@ func main() {
 				return err
 			}
 			gen := golang.APIGenerator{}
-			devopsGen := cicdGenerator.DevopsGenerator{}
+			cicdGen := cicdGenerator.CICDGenerator{}
 			if err = gen.Generate(f, c.String("output")); err != nil {
 				return err
 			}
-			err = devopsGen.Generate(f, c.String("output"))
+			// todo: See #33
+			if f.CICD != nil {
+				err = cicdGen.Generate(f, c.String("output"))
+			}
 			return err
 		},
 	}).Run(os.Args)

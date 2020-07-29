@@ -1,6 +1,7 @@
 package configFile
 
 import (
+	"autoAPI/configFile/fields/cicd"
 	"autoAPI/configFile/fields/database"
 	"autoAPI/configFile/fields/docker"
 	"gopkg.in/yaml.v3"
@@ -10,6 +11,7 @@ import (
 
 type ConfigFile struct {
 	Docker   *docker.Docker     `yaml:"docker"`
+	CICD     *cicd.CICD         `yaml:"cicd"`
 	Database *database.Database `yaml:"database"`
 }
 

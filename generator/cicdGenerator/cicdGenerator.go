@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 )
 
-type DevopsGenerator struct{}
+type CICDGenerator struct{}
 
 func renderKubernetesDeployment(configFile configFile.ConfigFile, dirPath string) error {
 
@@ -40,11 +40,19 @@ func renderGitHubActions(configFile configFile.ConfigFile, dirPath string) error
 	return err
 }
 
-func (generator DevopsGenerator) Generate(configFile configFile.ConfigFile, dirPath string) error {
-	err := renderKubernetesDeployment(configFile, dirPath)
-	if err != nil {
-		return err
+func (generator CICDGenerator) Generate(configFile configFile.ConfigFile, dirPath string) error {
+	// todo: See #33
+	if configFile.CICD.K8s == nil || *configFile.CICD.K8s {
+		err := renderKubernetesDeployment(configFile, dirPath)
+		if err != nil {
+			return err
+		}
 	}
-	err = renderGitHubActions(configFile, dirPath)
-	return err
+	if configFile.CICD.GithubAction == nil || *configFile.CICD.GithubAction {
+		err := renderGitHubActions(configFile, dirPath)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
