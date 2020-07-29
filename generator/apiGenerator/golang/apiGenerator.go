@@ -1,7 +1,7 @@
-package generator
+package golang
 
 import (
-	"autoAPI/table"
+	"autoAPI/configFile"
 	"autoAPI/template/go/dockerfile"
 	"autoAPI/template/go/goMod"
 	"autoAPI/template/go/handler"
@@ -12,10 +12,10 @@ import (
 	"path/filepath"
 )
 
-type GoGenerator struct{}
+type APIGenerator struct{}
 
-func renderDockerfile(table table.Table, dirPath string) error {
-	dockerFileContent := dockerfile.Dockerfile(table)
+func renderDockerfile(configFile configFile.ConfigFile, dirPath string) error {
+	dockerFileContent := dockerfile.Dockerfile(configFile)
 	dockerfileFile, err := os.Create(filepath.Join(dirPath, "Dockerfile"))
 	if err != nil {
 		return err
@@ -25,8 +25,8 @@ func renderDockerfile(table table.Table, dirPath string) error {
 	return err
 }
 
-func renderGoMod(table table.Table, dirPath string) error {
-	modFileContent := goMod.GoMod(table)
+func renderGoMod(configFile configFile.ConfigFile, dirPath string) error {
+	modFileContent := goMod.GoMod(configFile)
 	modFile, err := os.Create(filepath.Join(dirPath, "go.mod"))
 	if err != nil {
 		return err
@@ -36,8 +36,8 @@ func renderGoMod(table table.Table, dirPath string) error {
 	return err
 }
 
-func renderMain(table table.Table, dirPath string) error {
-	mainFileContent := mainTemplate.MainTemplate(table)
+func renderMain(configFile configFile.ConfigFile, dirPath string) error {
+	mainFileContent := mainTemplate.MainTemplate(configFile)
 	mainFile, err := os.Create(filepath.Join(dirPath, "main.go"))
 	if err != nil {
 		return err
@@ -47,13 +47,13 @@ func renderMain(table table.Table, dirPath string) error {
 	return err
 }
 
-func renderHandler(table table.Table, dirPath string) error {
+func renderHandler(configFile configFile.ConfigFile, dirPath string) error {
 	handlerDir := filepath.Join(dirPath, "handler")
 	err := os.Mkdir(handlerDir, 0755)
 	if err != nil {
 		return err
 	}
-	handlerFileContent := handler.Handler(table)
+	handlerFileContent := handler.Handler(configFile)
 	handlerFile, err := os.Create(filepath.Join(handlerDir, "handler.go"))
 	if err != nil {
 		return err
@@ -63,13 +63,13 @@ func renderHandler(table table.Table, dirPath string) error {
 	return err
 }
 
-func renderModel(table table.Table, dirPath string) error {
+func renderModel(configFile configFile.ConfigFile, dirPath string) error {
 	modelDir := filepath.Join(dirPath, "model")
 	err := os.Mkdir(modelDir, 0755)
 	if err != nil {
 		return err
 	}
-	modelFileContent := model.Model(table)
+	modelFileContent := model.Model(configFile)
 	modelFile, err := os.Create(filepath.Join(modelDir, "model.go"))
 	if err != nil {
 		return err
@@ -95,7 +95,7 @@ func renderDB(dirPath string) error {
 	return err
 }
 
-func (generator GoGenerator) Generate(table table.Table, dirPath string) error {
+func (generator APIGenerator) Generate(configFile configFile.ConfigFile, dirPath string) error {
 	err := os.RemoveAll(dirPath)
 	if err != nil {
 		return err
@@ -106,18 +106,20 @@ func (generator GoGenerator) Generate(table table.Table, dirPath string) error {
 	if err = renderDB(dirPath); err != nil {
 		return err
 	}
-	if err = renderModel(table, dirPath); err != nil {
+	if err = renderModel(configFile, dirPath); err != nil {
 		return err
 	}
-	if err = renderHandler(table, dirPath); err != nil {
+	if err = renderHandler(configFile, dirPath); err != nil {
 		return err
 	}
-	if err = renderMain(table, dirPath); err != nil {
+	if err = renderMain(configFile, dirPath); err != nil {
 		return err
 	}
-	if err = renderGoMod(table, dirPath); err != nil {
+	if err = renderGoMod(configFile, dirPath); err != nil {
 		return err
 	}
-	err = renderDockerfile(table, dirPath)
+	if configFile.Docker != nil {
+		err = renderDockerfile(configFile, dirPath)
+	}
 	return err
 }
