@@ -1,11 +1,11 @@
-{% import "autoAPI/table" %}
+{% import "autoAPI/configFile" %}
 
-{% func MainTemplate(table table.Table) %}
+{% func MainTemplate(configFile configFile.ConfigFile) %}
 package main
 
 import (
     "log"
-    "{%v table.Name.CamelCase() %}/handler"
+    "{%v configFile.Database.Table.Name.CamelCase() %}/handler"
     "net/http"
     "github.com/gorilla/mux"
 )
@@ -13,11 +13,11 @@ import (
 func main() {
     r := mux.NewRouter()
     r.HandleFunc("/ping", handler.PingPongHandler)
-    r.HandleFunc("/{%v table.Name.KebabCase() %}s", handler.PostHandler).Methods("POST")
-    r.HandleFunc("/{%v table.Name.KebabCase() %}s/{id:[0-9]+}", handler.GetHandler).Methods("GET")
-    r.HandleFunc("/{%v table.Name.KebabCase() %}s", handler.ScanHandler).Queries("limit", "{limit}").Queries("offset", "{offset}").Methods("GET")
-    r.HandleFunc("/{%v table.Name.KebabCase() %}s/{id:[0-9]+}", handler.PutHandler).Methods("PUT")
-    r.HandleFunc("/{%v table.Name.KebabCase() %}s/{id:[0-9]+}", handler.DeleteHandler).Methods("DELETE")
+    r.HandleFunc("/{%v configFile.Database.Table.Name.KebabCase() %}s", handler.PostHandler).Methods("POST")
+    r.HandleFunc("/{%v configFile.Database.Table.Name.KebabCase() %}s/{id:[0-9]+}", handler.GetHandler).Methods("GET")
+    r.HandleFunc("/{%v configFile.Database.Table.Name.KebabCase() %}s", handler.ScanHandler).Queries("limit", "{limit}").Queries("offset", "{offset}").Methods("GET")
+    r.HandleFunc("/{%v configFile.Database.Table.Name.KebabCase() %}s/{id:[0-9]+}", handler.PutHandler).Methods("PUT")
+    r.HandleFunc("/{%v configFile.Database.Table.Name.KebabCase() %}s/{id:[0-9]+}", handler.DeleteHandler).Methods("DELETE")
     err := http.ListenAndServe(":8000", r)
     if err != nil {
     	log.Fatal("ListenAndServe: ", err)

@@ -1,0 +1,18 @@
+{% import "autoAPI/configFile" %}
+
+{% func GitHubActionDocker(configFile configFile.ConfigFile) %}
+name: Docker Image CI
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build the Docker image
+        run: |
+          docker build . -t {%v configFile.Database.Table.Name.KebabCase() %}
+          docker tag {%v configFile.Database.Table.Name.KebabCase() %} {%v configFile.Docker.Username %}/{%v configFile.Database.Table.Name.KebabCase() %}:{%v configFile.Docker.Tag %}
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login --username "{%v configFile.Docker.Username %}" --password-stdin
+          docker push {%v configFile.Docker.Username %}/{%v configFile.Database.Table.Name.KebabCase() %}:{%v configFile.Docker.Tag %}
+{% endfunc %}

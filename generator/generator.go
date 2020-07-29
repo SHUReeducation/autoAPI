@@ -1,7 +1,9 @@
 package generator
 
-import "autoAPI/table"
+import (
+	"autoAPI/configFile"
+)
 
 type Generator interface {
-	Generate(table table.Table, dirPath string) error
+	Generate(configFile configFile.ConfigFile, dirPath string) error
 }

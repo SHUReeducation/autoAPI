@@ -1,9 +1,11 @@
-version: 0.0.1
-tablename: student
-fields:
-  - name: name
-    type: varchar(24)
-  - name: birthday
-    type: date
-dbengine: pgsql
-docker-username: zhoudian64
+docker:
+  username: zhoudian64
+  tag: 0.0.1
+database:
+  dbengine: pgsql
+  tablename: student
+  fields:
+    - name: name
+      type: varchar(24)
+    - name: birthday
+      type: date

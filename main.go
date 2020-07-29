@@ -4,10 +4,9 @@
 package main
 
 import (
-	"autoAPI/devops"
-	"autoAPI/generator"
-	"autoAPI/table"
-	"autoAPI/yamlParser"
+	"autoAPI/configFile"
+	"autoAPI/generator/apiGenerator/golang"
+	"autoAPI/generator/cicdGenerator"
 	"github.com/urfave/cli/v2"
 	"log"
 	"os"
@@ -30,18 +29,16 @@ func main() {
 		Name:  "autoAPI",
 		Usage: "Generate an CRUD api endpoint program automatically!",
 		Action: func(c *cli.Context) error {
-			f, err := yamlParser.Load(c.String("file"))
+			f, err := configFile.LoadYaml(c.String("file"))
 			if err != nil {
 				return err
 			}
-			m := table.FromYaml(f)
-			metaData := devops.FromYaml(f)
-			gen := generator.GoGenerator{}
-			devopsGen := generator.DevopsGenerator{}
-			if err = gen.Generate(m, c.String("output")); err != nil {
+			gen := golang.APIGenerator{}
+			devopsGen := cicdGenerator.DevopsGenerator{}
+			if err = gen.Generate(f, c.String("output")); err != nil {
 				return err
 			}
-			err = devopsGen.Generate(metaData, m, c.String("output"))
+			err = devopsGen.Generate(f, c.String("output"))
 			return err
 		},
 	}).Run(os.Args)
