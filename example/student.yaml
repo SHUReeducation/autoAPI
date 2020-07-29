@@ -1,9 +1,10 @@
 version: 0.0.1
+dbengine: pgsql
 tablename: student
 fields:
   - name: name
     type: varchar(24)
   - name: birthday
     type: date
-dbengine: pgsql
+#github-actions: false
 docker-username: zhoudian64

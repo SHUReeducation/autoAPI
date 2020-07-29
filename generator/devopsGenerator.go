@@ -49,6 +49,9 @@ func (generator DevopsGenerator) Generate(metaData devops.MetaData, table table.
 	if err != nil {
 		return err
 	}
-	err = renderGitHubActions(metaData, table, dirPath)
-	return err
+	if metaData.GithubActions != "false" {
+		err = renderGitHubActions(metaData, table, dirPath)
+		return err
+	}
+	return nil
 }
