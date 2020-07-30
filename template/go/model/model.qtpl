@@ -72,4 +72,66 @@ func Delete(id int64) error {
     return err
 }
 
+{% for _, complex := range configFile.Database.Table.Complex %}
+type {%v complex.Name.PascalCase() %} struct {
+    {% for _, field := range complex.Result.Fields %}{%v field.Name.PascalCase() %} {%s typeTransformer.TypeTransformer.Transform(field.Type) %} `json:"{%v field.Name.SnakeCase() %}"`
+    {% endfor %}
+}
+
+{% if complex.UseForeignKey() %}
+func ({%v configFile.Database.Table.Name.CamelCase() %} *{%v configFile.Database.Table.Name.PascalCase() %}) {%v complex.Name.PascalCase() %}({%- for _, param := range complex.Params -%}{%- if param != *complex.ForeignKey() -%}{%v param.Name.CamelCase() %} {%s typeTransformer.TypeTransformer.Transform(param.Type) %}, {% endif -%}{%- endfor -%}{%- if complex.Result.Array -%} offset uint64, limit uint64{%- endif -%}
+) ({% if complex.Result.Array %}[]{% endif %}{%v complex.Name.PascalCase() %}, error)  {
+{%- if complex.Result.Array -%}
+    rows, err := infrastructure.DB.Query(`{%v= complex.SQL %}
+        LIMIT ${%v len(complex.Params) %}
+        OFFSET ${%v len(complex.Params) + 1 %};`, {% for _, param := range complex.Params -%}{%- if param.Name != nil -%}{%-v param.Name.CamelCase() -%}{%- else -%}{%-v configFile.Database.Table.Name.CamelCase() %}.{%v param.OnThis.PascalCase() -%}{%- endif -%}, {% endfor -%}limit, offset)
+    if err != nil {
+        return nil, err
+    }
+    var result []{%v complex.Name.PascalCase() %}
+    for rows.Next() {
+        var scanned {%v complex.Name.PascalCase() %}
+        err := rows.Scan({% for i, field := range complex.Result.Fields %}&scanned.{%v field.Name.PascalCase() %}{% if i + 1 < len(configFile.Database.Table.Fields) %}, {% endif %}{% endfor %})
+        if err != nil {
+            return result, err
+        }
+        result = append(result, scanned)
+    }
+    return result, nil
+{%- else -%}
+    row := infrastructure.DB.QueryRow(`{%v= complex.SQL %};`, {%- for _, param := range complex.Params -%}{%- if param.Name != nil -%}{%-v param.Name.CamelCase() -%}{%- else -%}{%-v configFile.Database.Table.Name.CamelCase() %}.{%v param.OnThis.PascalCase() -%}{%- endif -%},{%- endfor -%})
+    var object {%v complex.Name.PascalCase() %}
+    err := row.Scan({% for i, field := range complex.Result.Fields %}&object.{%v field.Name.PascalCase() %}{% if i + 1 < len(configFile.Database.Table.Fields) %}, {% endif %}{% endfor %})
+    return object, err
+{%- endif -%}
+}
+{% else %}
+func Get{%v complex.Name.PascalCase() %}({%- for _, param := range complex.Params -%}{%v param.Name.CamelCase() %} {%s typeTransformer.TypeTransformer.Transform(param.Type) %}, {%- endfor -%}{%- if complex.Result.Array -%} offset uint64, limit uint64{%- endif -%}
+) ({% if complex.Result.Array %}[]{% endif %}{%v complex.Name.PascalCase() %}, error)  {
+{%- if complex.Result.Array -%}
+    rows, err := infrastructure.DB.Query(`{%v= complex.SQL %}
+        LIMIT ${%v len(complex.Params) + 1 %}
+        OFFSET ${%v len(complex.Params) + 2 %};`, {% for _, param := range complex.Params -%}{%-v param.Name.CamelCase() -%}, {% endfor -%}limit, offset)
+    if err != nil {
+        return nil, err
+    }
+    var result []{%v complex.Name.PascalCase() %}
+    for rows.Next() {
+        var scanned {%v complex.Name.PascalCase() %}
+        err := rows.Scan({% for i, field := range complex.Result.Fields %}&scanned.{%v field.Name.PascalCase() %}{% if i + 1 < len(configFile.Database.Table.Fields) %}, {% endif %}{% endfor %})
+        if err != nil {
+            return result, err
+        }
+        result = append(result, scanned)
+    }
+    return result, nil
+{%- else -%}
+    row := infrastructure.DB.QueryRow(`{%v= complex.SQL %};`, {%- for _, param := range complex.Params -%}{%-v param.Name.CamelCase() -%}, {%- endfor -%})
+    var object {%v complex.Name.PascalCase() %}
+    err := row.Scan({% for i, field := range complex.Result.Fields %}&object.{%v field.Name.PascalCase() %}{% if i + 1 < len(configFile.Database.Table.Fields) %}, {% endif %}{% endfor %})
+    return object, err
+{%- endif -%}
+}
+{% endif %}
+{% endfor %}
 {% endfunc %}
