@@ -5,38 +5,31 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-type WithCase interface {
-	PascalCase() string
-	CamelCase() string
-	SnakeCase() string
-	KebabCase() string
-}
-
-type StringWithCase struct {
+type WithCase struct {
 	string
 }
 
-func (s StringWithCase) PascalCase() string {
+func (s WithCase) PascalCase() string {
 	return strcase.ToCamel(s.string)
 }
 
-func (s StringWithCase) SnakeCase() string {
+func (s WithCase) SnakeCase() string {
 	return strcase.ToSnake(s.string)
 }
 
-func (s StringWithCase) CamelCase() string {
+func (s WithCase) CamelCase() string {
 	return strcase.ToLowerCamel(s.string)
 }
 
-func (s StringWithCase) KebabCase() string {
+func (s WithCase) KebabCase() string {
 	return strcase.ToKebab(s.string)
 }
 
-func (s StringWithCase) MarshalYAML() (interface{}, error) {
+func (s WithCase) MarshalYAML() (interface{}, error) {
 	return yaml.Marshal(s.string)
 }
 
-func (s *StringWithCase) UnmarshalYAML(node *yaml.Node) error {
+func (s *WithCase) UnmarshalYAML(node *yaml.Node) error {
 	err := node.Decode(&s.string)
 	return err
 }

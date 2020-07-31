@@ -122,6 +122,53 @@ func DeleteHandler(w http.ResponseWriter, r *http.Request) {
     }
 }
 
+{% for _, complex := range configFile.Database.Table.Complex %}
+func {%v complex.Name.PascalCase() %}Handler(w http.ResponseWriter, r *http.Request) {
+    w.Header().Add("Content-Type", "application/json")
+    {%- if complex.Result.Array -%}
+    limitStr := r.URL.Query().Get("limit")
+    limit, err := strconv.ParseUint(limitStr, 10, 64)
+    if err != nil {
+        log.Println(err)
+        w.WriteHeader(http.StatusBadRequest)
+        _, _ = w.Write([]byte(err.Error()))
+        return
+    }
+    offsetStr := r.URL.Query().Get("offset")
+    offset, err := strconv.ParseUint(offsetStr, 10, 64)
+    if err != nil {
+        log.Println(err)
+        w.WriteHeader(http.StatusBadRequest)
+        _, _ = w.Write([]byte(err.Error()))
+        return
+    }
+    {% endif %}{% for _, param := range complex.Params %}{% if param.Name != nil %}{%v param.Name.CamelCase() %} := r.URL.Query().Get("{%v param.Name.SnakeCase() %}"){% endif %}
+    {% endfor %}{% if complex.UseForeignKey() %}
+    idStr := mux.Vars(r)["id"]
+    id, err := strconv.ParseInt(idStr, 10, 64)
+    self, err := model.Get(id)
+    if err != nil {
+        w.WriteHeader(http.StatusNotFound)
+        return
+    }
+    result, err := self.{%v complex.Name.PascalCase() %}({%- for _, param := range complex.Params -%}{%- if param != *complex.ForeignKey() -%}{%v param.Name.CamelCase() %}, {% endif -%}{%- endfor -%}{%- if complex.Result.Array -%} offset, limit{%- endif -%})
+    {% else %}
+    result, err := model.Get{%v complex.Name.PascalCase() %}({%- for _, param := range complex.Params -%}{%v param.Name.CamelCase() %}, {%- endfor -%}{%- if complex.Result.Array -%} offset, limit{%- endif -%})
+    {% endif %}
+    {%- if complex.Result.Array -%}
+    var body []byte
+    if len(result) != 0 {
+        body, _ = json.Marshal(result)
+    } else {
+        body = []byte("[]")
+    }
+    {% else %}
+    body, _ := json.Marshal(result)
+    {%- endif -%}
+    _, _ = w.Write(body)
+}
+{% endfor %}
+
 func PingPongHandler(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write([]byte("pong"))
 }

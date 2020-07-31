@@ -18,6 +18,10 @@ func main() {
     r.HandleFunc("/{%v configFile.Database.Table.Name.KebabCase() %}s", handler.ScanHandler).Queries("limit", "{limit}").Queries("offset", "{offset}").Methods("GET")
     r.HandleFunc("/{%v configFile.Database.Table.Name.KebabCase() %}s/{id:[0-9]+}", handler.PutHandler).Methods("PUT")
     r.HandleFunc("/{%v configFile.Database.Table.Name.KebabCase() %}s/{id:[0-9]+}", handler.DeleteHandler).Methods("DELETE")
+    {% for _, complex := range configFile.Database.Table.Complex %}
+    r.HandleFunc("/{%v configFile.Database.Table.Name.KebabCase() %}s/{id:[0-9]+}/{%v complex.Name.KebabCase() %}", handler.{%v complex.Name.PascalCase() %}Handler,
+        ){% for _, param := range complex.Params %}{% if param.Name != nil %}.Queries("{%v param.Name.SnakeCase() %}", "{{%v param.Name.SnakeCase() %}}"){% endif %}{% endfor %}.Methods("GET")
+    {% endfor %}
     err := http.ListenAndServe(":8000", r)
     if err != nil {
     	log.Fatal("ListenAndServe: ", err)
