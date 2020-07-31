@@ -6,14 +6,15 @@ cicd:
   k8s: true
 database:
   dbengine: pgsql
+  url: "postgresql://localhost:5432/postgres?sslmode=disable"
   tablename: student
-  fields:
-    - name: name
-      type: varchar(24)
-    - name: birthday
-      type: date
-    - name: school_id
-      type: int
+#  fields:
+#    - name: name
+#      type: varchar(24)
+#    - name: birthday
+#      type: date
+#    - name: school_id
+#      type: int
   complex:
     - name: schools
       sql: "SELECT school.id, name, place

@@ -7,6 +7,7 @@ import (
 	"autoAPI/configFile"
 	"autoAPI/generator/apiGenerator/golang"
 	"autoAPI/generator/cicdGenerator"
+	"autoAPI/nilFiller"
 	"github.com/urfave/cli/v2"
 	"log"
 	"os"
@@ -30,6 +31,10 @@ func main() {
 		Usage: "Generate an CRUD api endpoint program automatically!",
 		Action: func(c *cli.Context) error {
 			f, err := configFile.LoadYaml(c.String("file"))
+			if err != nil {
+				return err
+			}
+			err = nilFiller.FillNil(&f)
 			if err != nil {
 				return err
 			}
