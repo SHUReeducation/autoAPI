@@ -9,6 +9,10 @@ type WithCase struct {
 	string
 }
 
+func New(s string) WithCase {
+	return WithCase{s}
+}
+
 func (s WithCase) PascalCase() string {
 	return strcase.ToCamel(s.string)
 }

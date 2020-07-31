@@ -54,6 +54,7 @@ type Table struct {
 }
 
 type Database struct {
-	DBEngine string `yaml:"dbengine"`
-	Table    Table  `yaml:",inline"`
+	DBEngine string  `yaml:"dbengine"`
+	Url      *string `yaml:"url"`
+	Table    *Table  `yaml:",inline"`
 }

@@ -19,8 +19,8 @@ type {%v configFile.Database.Table.Name.PascalCase() %} struct {
 
 func Create(object {%v configFile.Database.Table.Name.PascalCase() %}) ({%v configFile.Database.Table.Name.PascalCase() %}, error) {
     row := infrastructure.DB.QueryRow(`
-    INSERT INTO {%v configFile.Database.Table.Name.PascalCase() %}(id, {% for i, field := range configFile.Database.Table.Fields %}{%v field.Name.SnakeCase() %}{% if i + 1 < len(configFile.Database.Table.Fields) %}, {% endif %}{% endfor %})
-    VALUES ($1, {% for i := range configFile.Database.Table.Fields %}${%d (i+2) %}{% if i + 1 < len(configFile.Database.Table.Fields) %}, {% endif %}{% endfor %}) RETURNING id;`, object.Id, {% for i, field := range configFile.Database.Table.Fields %}object.{%v field.Name.PascalCase() %}{% if i + 1 < len(configFile.Database.Table.Fields) %}, {% endif %}{% endfor %})
+    INSERT INTO {%v configFile.Database.Table.Name.PascalCase() %}({% for i, field := range configFile.Database.Table.Fields %}{%v field.Name.SnakeCase() %}{% if i + 1 < len(configFile.Database.Table.Fields) %}, {% endif %}{% endfor %})
+    VALUES ({% for i := range configFile.Database.Table.Fields %}${%d i+1 %}{% if i + 1 < len(configFile.Database.Table.Fields) %}, {% endif %}{% endfor %}) RETURNING id;`, {% for i, field := range configFile.Database.Table.Fields %}object.{%v field.Name.PascalCase() %}{% if i + 1 < len(configFile.Database.Table.Fields) %}, {% endif %}{% endfor %})
     err := row.Scan(&object.Id)
     return object, err
 }
@@ -91,7 +91,7 @@ func ({%v configFile.Database.Table.Name.CamelCase() %} *{%v configFile.Database
     var result []{%v complex.Name.PascalCase() %}
     for rows.Next() {
         var scanned {%v complex.Name.PascalCase() %}
-        err := rows.Scan({% for i, field := range complex.Result.Fields %}&scanned.{%v field.Name.PascalCase() %}{% if i + 1 < len(configFile.Database.Table.Fields) %}, {% endif %}{% endfor %})
+        err := rows.Scan({% for i, field := range complex.Result.Fields %}&scanned.{%v field.Name.PascalCase() %}{% if i + 1 < len(complex.Result.Fields) %}, {% endif %}{% endfor %})
         if err != nil {
             return result, err
         }
@@ -101,7 +101,7 @@ func ({%v configFile.Database.Table.Name.CamelCase() %} *{%v configFile.Database
 {%- else -%}
     row := infrastructure.DB.QueryRow(`{%v= complex.SQL %};`, {%- for _, param := range complex.Params -%}{%- if param.Name != nil -%}{%-v param.Name.CamelCase() -%}{%- else -%}{%-v configFile.Database.Table.Name.CamelCase() %}.{%v param.OnThis.PascalCase() -%}{%- endif -%},{%- endfor -%})
     var object {%v complex.Name.PascalCase() %}
-    err := row.Scan({% for i, field := range complex.Result.Fields %}&object.{%v field.Name.PascalCase() %}{% if i + 1 < len(configFile.Database.Table.Fields) %}, {% endif %}{% endfor %})
+    err := row.Scan({% for i, field := range complex.Result.Fields %}&object.{%v field.Name.PascalCase() %}{% if i + 1 < len(complex.Result.Fields) %}, {% endif %}{% endfor %})
     return object, err
 {%- endif -%}
 }
@@ -118,7 +118,7 @@ func Get{%v complex.Name.PascalCase() %}({%- for _, param := range complex.Param
     var result []{%v complex.Name.PascalCase() %}
     for rows.Next() {
         var scanned {%v complex.Name.PascalCase() %}
-        err := rows.Scan({% for i, field := range complex.Result.Fields %}&scanned.{%v field.Name.PascalCase() %}{% if i + 1 < len(configFile.Database.Table.Fields) %}, {% endif %}{% endfor %})
+        err := rows.Scan({% for i, field := range complex.Result.Fields %}&scanned.{%v field.Name.PascalCase() %}{% if i + 1 < len(complex.Result.Fields) %}, {% endif %}{% endfor %})
         if err != nil {
             return result, err
         }
@@ -128,7 +128,7 @@ func Get{%v complex.Name.PascalCase() %}({%- for _, param := range complex.Param
 {%- else -%}
     row := infrastructure.DB.QueryRow(`{%v= complex.SQL %};`, {%- for _, param := range complex.Params -%}{%-v param.Name.CamelCase() -%}, {%- endfor -%})
     var object {%v complex.Name.PascalCase() %}
-    err := row.Scan({% for i, field := range complex.Result.Fields %}&object.{%v field.Name.PascalCase() %}{% if i + 1 < len(configFile.Database.Table.Fields) %}, {% endif %}{% endfor %})
+    err := row.Scan({% for i, field := range complex.Result.Fields %}&object.{%v field.Name.PascalCase() %}{% if i + 1 < len(complex.Result.Fields) %}, {% endif %}{% endfor %})
     return object, err
 {%- endif -%}
 }
