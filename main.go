@@ -20,18 +20,11 @@ func main() {
 				Name:    "file",
 				Aliases: []string{"f"},
 				Usage:   "Load configuration from `FILE`",
-				Required: true,
 			},
 			&cli.StringFlag{
 				Name:    "output",
 				Aliases: []string{"o"},
 				Usage:   "Put the output code in `PATH`",
-				Required: true,
-			},
-			&cli.BoolFlag{
-				Name: "force",
-				Value: false,
-				Usage: "To control if there is 'rm -rf out put' before generate",
 			},
 		},
 		Name:  "autoAPI",
