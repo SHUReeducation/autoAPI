@@ -32,7 +32,7 @@ Examples of unacceptable behavior by participants include:
  professional setting
 
 **All of above does not apply to those who wants to add Java support, anyone who wants to add Java support to this repo,
-no matter how he or she does this, will be warned once, and if he or she insists hen we can do anything to him or her.**
+no matter how he or she does this, will be warned once, and if he or she insists then we can do anything to him or her.**
 
 ## Our Responsibilities
 
