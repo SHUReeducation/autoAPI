@@ -32,3 +32,14 @@ func LoadYaml(path string) (ConfigFile, error) {
 	}
 	return FromYaml(content)
 }
+
+func (c *ConfigFile) Validate() error {
+	err := c.Database.Validate()
+	if err != nil {
+		return err
+	}
+	if c.CICD != nil {
+		err = c.CICD.Validate()
+	}
+	return err
+}

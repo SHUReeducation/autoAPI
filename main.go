@@ -7,7 +7,6 @@ import (
 	"autoAPI/configFile"
 	"autoAPI/generator/apiGenerator/golang"
 	"autoAPI/generator/cicdGenerator"
-	"autoAPI/nilFiller"
 	"github.com/urfave/cli/v2"
 	"log"
 	"os"
@@ -34,7 +33,7 @@ func main() {
 			if err != nil {
 				return err
 			}
-			err = nilFiller.FillNil(&f)
+			err = f.Validate()
 			if err != nil {
 				return err
 			}
