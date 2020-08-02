@@ -8,6 +8,7 @@ import (
 	"autoAPI/generator/apiGenerator/golang"
 	"autoAPI/generator/cicdGenerator"
 	"autoAPI/nilFiller"
+	"fmt"
 	"github.com/urfave/cli/v2"
 	"log"
 	"os"
@@ -25,11 +26,16 @@ func main() {
 				Name:    "output",
 				Aliases: []string{"o"},
 				Usage:   "Put the output code in `PATH`",
+			},&cli.BoolFlag{
+				Name:    "force",
+				Aliases: nil,
+				Usage:   "`Force remove output`",
 			},
 		},
 		Name:  "autoAPI",
 		Usage: "Generate an CRUD api endpoint program automatically!",
 		Action: func(c *cli.Context) error {
+			fmt.Println(c.String("force"))
 			f, err := configFile.LoadYaml(c.String("file"))
 			if err != nil {
 				return err
