@@ -16,6 +16,9 @@ spec:
           image: {%v configFile.Docker.Username %}/{%v configFile.Database.Table.Name.KebabCase() %}:{%v configFile.Docker.Tag %}
           ports:
             - containerPort: 8000
+          env:
+            - name: DB_ADDRESS
+              value: "{%v *configFile.Database.Url %}"
 ---
 apiVersion: v1
 kind: Service
