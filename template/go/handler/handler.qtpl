@@ -1,10 +1,10 @@
-{% import "autoAPI/table" %}
+{% import "autoAPI/configFile" %}
 
-{% func Handler(table table.Table) %}
+{% func Handler(configFile configFile.ConfigFile) %}
 package handler
 
 import (
-    "{%v table.Name.CamelCase() %}/model"
+    "{%v configFile.Database.Table.Name.CamelCase() %}/model"
     "encoding/json"
     "io/ioutil"
     "log"
@@ -16,16 +16,16 @@ import (
 func PostHandler(w http.ResponseWriter, r *http.Request) {
     w.Header().Add("Content-Type", "application/json")
     body, _ := ioutil.ReadAll(r.Body)
-    var toCreate model.{%v table.Name.PascalCase() %}
+    var toCreate model.{%v configFile.Database.Table.Name.PascalCase() %}
     _ = json.Unmarshal(body, &toCreate)
     result, err := model.Create(toCreate)
     if err != nil {
-        log.Println("Create {%v table.Name.PascalCase() %} failed")
+        log.Println("Create {%v configFile.Database.Table.Name.PascalCase() %} failed")
         _, _ = w.Write([]byte(err.Error()))
         w.WriteHeader(http.StatusInternalServerError)
         return
     } else {
-        log.Println("{%v table.Name.PascalCase() %} ", result, " created")
+        log.Println("{%v configFile.Database.Table.Name.PascalCase() %} ", result, " created")
     }
     response, err := json.Marshal(result)
     w.WriteHeader(http.StatusCreated)
@@ -86,16 +86,16 @@ func ScanHandler(w http.ResponseWriter, r *http.Request) {
 func PutHandler(w http.ResponseWriter, r *http.Request) {
     w.Header().Add("Content-Type", "application/json")
     body, _ := ioutil.ReadAll(r.Body)
-    var toUpdate model.{%v table.Name.PascalCase() %}
+    var toUpdate model.{%v configFile.Database.Table.Name.PascalCase() %}
     _ = json.Unmarshal(body, &toUpdate)
     result, err := model.Put(toUpdate)
     if err != nil {
-        log.Println("Update {%v table.Name.CamelCase() %} failed")
+        log.Println("Update {%v configFile.Database.Table.Name.CamelCase() %} failed")
         _, _ = w.Write([]byte(err.Error()))
         w.WriteHeader(http.StatusInternalServerError)
         return
     } else {
-        log.Println("{%v table.Name.PascalCase() %}", toUpdate, "updated")
+        log.Println("{%v configFile.Database.Table.Name.PascalCase() %}", toUpdate, "updated")
         resp, _ := json.Marshal(result)
         _, _ = w.Write(resp)
         w.WriteHeader(http.StatusCreated)
@@ -112,15 +112,62 @@ func DeleteHandler(w http.ResponseWriter, r *http.Request) {
     }
     err = model.Delete(id)
     if err != nil {
-        log.Println("Update {%v table.Name.CamelCase() %} failed")
+        log.Println("Update {%v configFile.Database.Table.Name.CamelCase() %} failed")
         _, _ = w.Write([]byte(err.Error()))
         w.WriteHeader(http.StatusInternalServerError)
         return
     } else {
-        log.Println("{%v table.Name.PascalCase() %} id=", id, " updated")
+        log.Println("{%v configFile.Database.Table.Name.PascalCase() %} id=", id, " updated")
         w.WriteHeader(http.StatusNoContent)
     }
 }
+
+{% for _, complex := range configFile.Database.Table.Complex %}
+func {%v complex.Name.PascalCase() %}Handler(w http.ResponseWriter, r *http.Request) {
+    w.Header().Add("Content-Type", "application/json")
+    {%- if complex.Result.Array -%}
+    limitStr := r.URL.Query().Get("limit")
+    limit, err := strconv.ParseUint(limitStr, 10, 64)
+    if err != nil {
+        log.Println(err)
+        w.WriteHeader(http.StatusBadRequest)
+        _, _ = w.Write([]byte(err.Error()))
+        return
+    }
+    offsetStr := r.URL.Query().Get("offset")
+    offset, err := strconv.ParseUint(offsetStr, 10, 64)
+    if err != nil {
+        log.Println(err)
+        w.WriteHeader(http.StatusBadRequest)
+        _, _ = w.Write([]byte(err.Error()))
+        return
+    }
+    {% endif %}{% for _, param := range complex.Params %}{% if param.Name != nil %}{%v param.Name.CamelCase() %} := r.URL.Query().Get("{%v param.Name.SnakeCase() %}"){% endif %}
+    {% endfor %}{% if complex.UseForeignKey() %}
+    idStr := mux.Vars(r)["id"]
+    id, err := strconv.ParseInt(idStr, 10, 64)
+    self, err := model.Get(id)
+    if err != nil {
+        w.WriteHeader(http.StatusNotFound)
+        return
+    }
+    result, err := self.{%v complex.Name.PascalCase() %}({%- for _, param := range complex.Params -%}{%- if param != *complex.ForeignKey() -%}{%v param.Name.CamelCase() %}, {% endif -%}{%- endfor -%}{%- if complex.Result.Array -%} offset, limit{%- endif -%})
+    {% else %}
+    result, err := model.Get{%v complex.Name.PascalCase() %}({%- for _, param := range complex.Params -%}{%v param.Name.CamelCase() %}, {%- endfor -%}{%- if complex.Result.Array -%} offset, limit{%- endif -%})
+    {% endif %}
+    {%- if complex.Result.Array -%}
+    var body []byte
+    if len(result) != 0 {
+        body, _ = json.Marshal(result)
+    } else {
+        body = []byte("[]")
+    }
+    {% else %}
+    body, _ := json.Marshal(result)
+    {%- endif -%}
+    _, _ = w.Write(body)
+}
+{% endfor %}
 
 func PingPongHandler(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write([]byte("pong"))

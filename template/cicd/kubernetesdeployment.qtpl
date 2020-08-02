@@ -1,0 +1,31 @@
+{% import "autoAPI/configFile" %}
+{% func KubernetesFile(configFile configFile.ConfigFile) %}
+kind: Deployment
+metadata:
+  name: {%v configFile.Database.Table.Name.KebabCase() %}
+  labels:
+    app: {%v configFile.Database.Table.Name.KebabCase() %}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {%v configFile.Database.Table.Name.KebabCase() %}
+    spec:
+      containers:
+        - name: {%v configFile.Database.Table.Name.KebabCase() %}
+          image: {%v configFile.Docker.Username %}/{%v configFile.Database.Table.Name.KebabCase() %}:{%v configFile.Docker.Tag %}
+          ports:
+            - containerPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {%v configFile.Database.Table.Name.KebabCase() %}-svc
+spec:
+  selector:
+    app: {%v configFile.Database.Table.Name.KebabCase() %}
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+{% endfunc %}

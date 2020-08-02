@@ -1,8 +1,8 @@
-package typeTransform
+package golangTypeTransformer
 
 import "strings"
 
-type GolangTypeTransformer struct {
+type typeTransformer struct {
 }
 
 var transformMap = map[string]string{
@@ -23,7 +23,7 @@ var transformMap = map[string]string{
 	"bytea":       "[]byte",
 }
 
-func (_ GolangTypeTransformer) Transform(dataBaseType string) string {
+func (_ typeTransformer) Transform(dataBaseType string) string {
 	result, contains := transformMap[dataBaseType]
 	if contains {
 		return result
@@ -32,4 +32,10 @@ func (_ GolangTypeTransformer) Transform(dataBaseType string) string {
 	} else {
 		return dataBaseType
 	}
+}
+
+var TypeTransformer typeTransformer
+
+func init() {
+	TypeTransformer = typeTransformer{}
 }
