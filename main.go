@@ -37,7 +37,7 @@ func main() {
 		Name:  "autoAPI",
 		Usage: "Generate an CRUD api endpoint program automatically!",
 		Action: func(c *cli.Context) error {
-			f, err := configFile.LoadYaml(c.String("file"))
+			f, err := configFile.LoadFile(c.String("file"))
 			if err != nil {
 				return err
 			}

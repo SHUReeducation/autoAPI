@@ -66,7 +66,7 @@ func (complex Complex) UseForeignKey() bool {
 }
 
 type Table struct {
-	Name    *withCase.WithCase `yaml:"tablename"`
+	Name    *withCase.WithCase `yaml:"tablename" json:"tablename"`
 	Fields  []field.Field      `yaml:"fields"`
 	Complex []Complex          `yaml:"complex"`
 }

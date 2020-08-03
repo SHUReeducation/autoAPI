@@ -1,6 +1,7 @@
 package withCase
 
 import (
+	"encoding/json"
 	"github.com/iancoleman/strcase"
 	"gopkg.in/yaml.v3"
 )
@@ -36,4 +37,13 @@ func (s WithCase) MarshalYAML() (interface{}, error) {
 func (s *WithCase) UnmarshalYAML(node *yaml.Node) error {
 	err := node.Decode(&s.string)
 	return err
+}
+func (s *WithCase) UnmarshalJSON(b []byte) error {
+	var temp string
+	err := json.Unmarshal(b, &temp)
+	if err != nil {
+		return err
+	}
+	s.string = temp
+	return nil
 }
