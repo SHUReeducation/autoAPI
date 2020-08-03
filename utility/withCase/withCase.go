@@ -47,3 +47,6 @@ func (s *WithCase) UnmarshalJSON(b []byte) error {
 	s.string = temp
 	return nil
 }
+func (s *WithCase) MarshalJson() ([]byte, error) {
+	return json.Marshal(s.string)
+}
