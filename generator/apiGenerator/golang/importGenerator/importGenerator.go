@@ -2,7 +2,7 @@ package golangImportGenerator
 
 import (
 	"autoAPI/configFile"
-	"autoAPI/configFile/fields/database"
+	"autoAPI/configFile/fields/database/field"
 	typeTransformer "autoAPI/generator/apiGenerator/golang/typeTransformer"
 )
 
@@ -12,7 +12,7 @@ var importMap = map[string]string{
 	"time.Time": "time",
 }
 
-func importFor(f database.Field) *string {
+func importFor(f field.Field) *string {
 	result, contains := importMap[typeTransformer.TypeTransformer.Transform(f.Type)]
 	if contains {
 		return &result
@@ -23,8 +23,8 @@ func importFor(f database.Field) *string {
 
 func (i importGenerator) Generate(configFile configFile.ConfigFile) []string {
 	set := map[string]bool{}
-	for _, field := range configFile.Database.Table.Fields {
-		forField := importFor(field)
+	for _, currentField := range configFile.Database.Table.Fields {
+		forField := importFor(currentField)
 		if forField != nil {
 			set[*forField] = true
 		}
