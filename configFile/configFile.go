@@ -26,11 +26,11 @@ func FromYaml(data []byte) (ConfigFile, error) {
 
 func FromJson(data []byte) (ConfigFile, error) {
 	var result ConfigFile
-	err:=json.Unmarshal(data,&result)
+	err := json.Unmarshal(data, &result)
 	return result, err
 }
 
-func LoadFile(path string) (ConfigFile,error){
+func LoadFile(path string) (ConfigFile, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return ConfigFile{}, err
@@ -39,13 +39,13 @@ func LoadFile(path string) (ConfigFile,error){
 	if err != nil {
 		return ConfigFile{}, err
 	}
-	switch ext:=filepath.Ext(path);ext{
-	case ".json",".JSON":
+	switch ext := filepath.Ext(path); ext {
+	case ".json", ".JSON":
 		return FromJson(content)
-	case ".yaml",".YAML":
+	case ".yaml", ".YAML":
 		return FromYaml(content)
 	default:
-		return ConfigFile{},errors.New("only support json or yaml now")
+		return ConfigFile{}, errors.New("only support json or yaml now")
 	}
 }
 
