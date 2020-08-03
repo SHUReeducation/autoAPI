@@ -45,7 +45,7 @@ func main() {
 			if err != nil {
 				return err
 			}
-			if finfo, _ := os.Stat(c.String("output")); finfo.IsDir() {
+			if finfo, _ := os.Stat(c.String("output")); finfo != nil && finfo.IsDir() {
 				if c.Bool("force") {
 					err = os.RemoveAll(c.String("output"))
 				} else {
