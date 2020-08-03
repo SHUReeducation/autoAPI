@@ -7,7 +7,7 @@ import (
 	"autoAPI/configFile"
 	"autoAPI/generator/apiGenerator/golang"
 	"autoAPI/generator/cicdGenerator"
-	"autoAPI/nilFiller"
+	"errors"
 	"github.com/urfave/cli/v2"
 	"log"
 	"os"
@@ -17,14 +17,21 @@ func main() {
 	err := (&cli.App{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:    "file",
-				Aliases: []string{"f"},
-				Usage:   "Load configuration from `FILE`",
+				Name:     "file",
+				Aliases:  []string{"f"},
+				Usage:    "Load configuration from `FILE`",
+				Required: true,
 			},
 			&cli.StringFlag{
-				Name:    "output",
-				Aliases: []string{"o"},
-				Usage:   "Put the output code in `PATH`",
+				Name:     "output",
+				Aliases:  []string{"o"},
+				Usage:    "Put the output code in `PATH`",
+				Required: true,
+			},
+			&cli.BoolFlag{
+				Name:  "force",
+				Value: false,
+				Usage: "If the output PATH dir exists, use '-force' to overwrite it",
 			},
 		},
 		Name:  "autoAPI",
@@ -34,9 +41,16 @@ func main() {
 			if err != nil {
 				return err
 			}
-			err = nilFiller.FillNil(&f)
+			err = f.Validate()
 			if err != nil {
 				return err
+			}
+			if finfo, _ := os.Stat(c.String("output")); finfo.IsDir() {
+				if c.Bool("force") {
+					err = os.RemoveAll(c.String("output"))
+				} else {
+					return errors.New("Output PATH dir already exists. Use '-h' or '-help' to get more information")
+				}
 			}
 			gen := golang.APIGenerator{}
 			cicdGen := cicdGenerator.CICDGenerator{}

@@ -7,6 +7,14 @@ assignees: ''
 
 ---
 
+<!--
+下面的内容可以使用中文或者英文填写。
+-->
+
+<!--
+You can fill the following things by using English or Chinese.
+-->
+
 **Describe the bug**
 A clear and concise description of what the bug is.
 
