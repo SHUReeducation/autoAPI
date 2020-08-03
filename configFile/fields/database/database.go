@@ -10,21 +10,21 @@ import (
 )
 
 type ComplexQueryResult struct {
-	Array  bool          `yaml:"array"`
-	Fields []field.Field `yaml:"fields"`
+	Array  bool          `yaml:"array" json:"array"`
+	Fields []field.Field `yaml:"fields" json:"fields"`
 }
 
 type ComplexQueryParam struct {
-	OnThis *withCase.WithCase `yaml:"onThis"`
-	Name   *withCase.WithCase `yaml:"name"`
-	Type   string             `yaml:"type"`
+	OnThis *withCase.WithCase `yaml:"onThis,omitempty" json:"onThis,omitempty"`
+	Name   *withCase.WithCase `yaml:"name,omitempty" json:"name,omitempty"`
+	Type   string             `yaml:"type" json:"type"`
 }
 
 type Complex struct {
-	Name   withCase.WithCase   `yaml:"name"`
-	SQL    string              `yaml:"sql"`
-	Params []ComplexQueryParam `yaml:"params"`
-	Result ComplexQueryResult  `yaml:"result"`
+	Name   withCase.WithCase   `yaml:"name" json:"name"`
+	SQL    string              `yaml:"sql" json:"sql"`
+	Params []ComplexQueryParam `yaml:"params" json:"params"`
+	Result ComplexQueryResult  `yaml:"result" json:"result"`
 }
 
 func (complex *Complex) Validate() error {
@@ -66,9 +66,9 @@ func (complex Complex) UseForeignKey() bool {
 }
 
 type Table struct {
-	Name    *withCase.WithCase `yaml:"tablename"`
-	Fields  []field.Field      `yaml:"fields"`
-	Complex []Complex          `yaml:"complex"`
+	Name    *withCase.WithCase `yaml:"tablename" json:"tablename"`
+	Fields  []field.Field      `yaml:"fields" json:"fields"`
+	Complex []Complex          `yaml:"complex" json:"complex"`
 }
 
 func (t *Table) Validate() error {
@@ -84,9 +84,9 @@ func (t *Table) Validate() error {
 }
 
 type Database struct {
-	DBEngine *string `yaml:"dbengine"`
-	Url      *string `yaml:"url"`
-	Table    *Table  `yaml:",inline"`
+	DBEngine *string `yaml:"dbengine" json:"dbengine"`
+	Url      *string `yaml:"url" json:"url"`
+	Table    *Table  `yaml:",inline" json:"table,inline"`
 }
 
 func FillWithDBAdapter(d *Database) error {

@@ -37,7 +37,7 @@ func main() {
 		Name:  "autoAPI",
 		Usage: "Generate an CRUD api endpoint program automatically!",
 		Action: func(c *cli.Context) error {
-			f, err := configFile.LoadYaml(c.String("file"))
+			f, err := configFile.LoadConfigFile(c.String("file"))
 			if err != nil {
 				return err
 			}
@@ -45,9 +45,15 @@ func main() {
 			if err != nil {
 				return err
 			}
-			if finfo, _ := os.Stat(c.String("output")); finfo.IsDir() {
+			if finfo, err := os.Stat(c.String("output")); finfo != nil && finfo.IsDir() {
+				if err != nil {
+					return err
+				}
 				if c.Bool("force") {
 					err = os.RemoveAll(c.String("output"))
+					if err != nil {
+						return err
+					}
 				} else {
 					return errors.New("Output PATH dir already exists. Use '-h' or '-help' to get more information")
 				}

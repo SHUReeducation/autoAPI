@@ -1,8 +1,8 @@
 package cicd
 
 type CICD struct {
-	GithubAction *bool `yaml:"GitHubAction"`
-	K8s          *bool `yaml:"k8s"`
+	GithubAction *bool `yaml:"GitHubAction" json:"GitHubAction"`
+	K8s          *bool `yaml:"k8s" json:"k8s"`
 }
 
 func (cicd *CICD) Validate() error {
