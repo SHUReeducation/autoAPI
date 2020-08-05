@@ -1,0 +1,34 @@
+name: Run integration test
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  smoke_test:
+    runs-on: ubuntu-latest
+    name: Run smoke test
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: 1.14
+      - name: Build
+        run: make build
+      - name: Run the test case
+        run: |
+          ./autoAPI -f ./integration/smoke-test/api.yml -o ./api
+          cd ./api
+          go mod tidy && go fmt
+          nohup go run main.go &
+          sleep 5
+          if [ $(curl http://localhost:8000/ping) == "pong" ]; then
+            exit 0;
+          else
+            exit 1;
+          fi
