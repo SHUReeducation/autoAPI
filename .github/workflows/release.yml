@@ -1,4 +1,4 @@
-name: Build&Release
+name: Build & Release
 
 on:
   push:
@@ -26,7 +26,7 @@ jobs:
         files: |
           autoAPI-windows-amd64.exe
           autoAPI-linux-amd64
-          autoAPI-darwin-amd64.dmg
+          autoAPI-darwin-amd64
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
