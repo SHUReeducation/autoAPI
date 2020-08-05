@@ -13,5 +13,5 @@ clean:
 
 build-release: generate
 	GOOS=windows GOARCH=amd64 go build -o autoAPI-windows-amd64.exe
-	GOOS=darwin GOARCH=amd64 go build -o autoAPI-darwin-amd64.dmg
+	GOOS=darwin GOARCH=amd64 go build -o autoAPI-darwin-amd64
 	GOOS=linux GOARCH=amd64 go build -o autoAPI-linux-amd64
