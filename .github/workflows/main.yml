@@ -1,0 +1,32 @@
+name: Build&Release
+
+on:
+  push:
+    tags: 
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup Go
+      uses: actions/setup-go@v2.1.1
+      with:
+        go-version: 1.14
+
+    - name: Build
+      run: |
+        make build-release
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        body: ${{ github.event.head_commit.message }}
+        files: |
+          autoAPI-windows-amd64.exe
+          autoAPI-linux-amd64
+          autoAPI-darwin-amd64.dmg
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
