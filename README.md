@@ -18,5 +18,5 @@ See our [wiki](https://github.com/SHUReeducation/autoAPI/wiki) for more infomati
 
 ## How to contribute
 
-see [here](https://github.com/SHUReeducation/CONTRIBUTING.md)
+See our [CONTRIBUTING.md](https://github.com/SHUReeducation/autoAPI/blob/master/CONTRIBUTING.md)
 
