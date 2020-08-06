@@ -1,0 +1,59 @@
+name: Run integration test
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  smoke_test:
+    runs-on: ubuntu-latest
+    name: Run smoke test
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: 1.14
+      - name: Build
+        run: make build
+      - name: Run the test case
+        run: ./integration/smoke/run.sh
+  basic_crud:
+    needs: smoke_test
+    runs-on: ubuntu-latest
+    name: Run basic crud test
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: 1.14
+      - name: Init database
+        uses: docker://migrate/migrate
+        with:
+          args:
+            -database "postgres://postgres:postgres@postgres:5432/postgres?sslmode=disable" -path integration/basic-crud/migration up
+      - name: Build
+        run: make build
+      - name: Run the test case
+        run: python3 ./integration/basic-crud/run.py
+        env:
+          DB_ADDRESS: "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable"

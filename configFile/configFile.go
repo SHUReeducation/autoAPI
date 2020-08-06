@@ -4,15 +4,19 @@ import (
 	"autoAPI/configFile/fields/cicd"
 	"autoAPI/configFile/fields/database"
 	"autoAPI/configFile/fields/docker"
+	"encoding/json"
+	"errors"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"os"
+	"path/filepath"
+	"strings"
 )
 
 type ConfigFile struct {
-	Docker   *docker.Docker     `yaml:"docker"`
-	CICD     *cicd.CICD         `yaml:"cicd"`
-	Database *database.Database `yaml:"database"`
+	Docker   *docker.Docker     `yaml:"docker" json:"docker"`
+	CICD     *cicd.CICD         `yaml:"cicd" json:"cicd"`
+	Database *database.Database `yaml:"database" json:"database"`
 }
 
 func FromYaml(data []byte) (ConfigFile, error) {
@@ -21,7 +25,13 @@ func FromYaml(data []byte) (ConfigFile, error) {
 	return result, err
 }
 
-func LoadYaml(path string) (ConfigFile, error) {
+func FromJson(data []byte) (ConfigFile, error) {
+	var result ConfigFile
+	err := json.Unmarshal(data, &result)
+	return result, err
+}
+
+func LoadConfigFile(path string) (ConfigFile, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return ConfigFile{}, err
@@ -30,5 +40,23 @@ func LoadYaml(path string) (ConfigFile, error) {
 	if err != nil {
 		return ConfigFile{}, err
 	}
-	return FromYaml(content)
+	switch ext := strings.ToLower(filepath.Ext(path)); ext {
+	case ".json":
+		return FromJson(content)
+	case ".yaml", ".yml":
+		return FromYaml(content)
+	default:
+		return ConfigFile{}, errors.New("only support json or yaml now")
+	}
+}
+
+func (c *ConfigFile) Validate() error {
+	err := c.Database.Validate()
+	if err != nil {
+		return err
+	}
+	if c.CICD != nil {
+		err = c.CICD.Validate()
+	}
+	return err
 }

@@ -97,8 +97,8 @@ func PutHandler(w http.ResponseWriter, r *http.Request) {
     } else {
         log.Println("{%v configFile.Database.Table.Name.PascalCase() %}", toUpdate, "updated")
         resp, _ := json.Marshal(result)
-        _, _ = w.Write(resp)
         w.WriteHeader(http.StatusCreated)
+        _, _ = w.Write(resp)
     }
 }
 
@@ -112,12 +112,12 @@ func DeleteHandler(w http.ResponseWriter, r *http.Request) {
     }
     err = model.Delete(id)
     if err != nil {
-        log.Println("Update {%v configFile.Database.Table.Name.CamelCase() %} failed")
+        log.Println("Delete {%v configFile.Database.Table.Name.CamelCase() %} failed")
         _, _ = w.Write([]byte(err.Error()))
         w.WriteHeader(http.StatusInternalServerError)
         return
     } else {
-        log.Println("{%v configFile.Database.Table.Name.PascalCase() %} id=", id, " updated")
+        log.Println("{%v configFile.Database.Table.Name.PascalCase() %} id=", id, " deleted")
         w.WriteHeader(http.StatusNoContent)
     }
 }
