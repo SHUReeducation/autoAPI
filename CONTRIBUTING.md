@@ -1,8 +1,8 @@
-# CONTRIBUTE.md
+# Contributing to autoAPI
 
 You're very welcomed to be a contributor to autoAPI! 🎉
 
-This artical will show you the best practice of doing some contribution to this repo.
+This document will show you the best practice of doing some contribution to this repo.
 
 ## Get the code
 
