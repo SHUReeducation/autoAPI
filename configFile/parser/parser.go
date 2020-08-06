@@ -9,6 +9,7 @@ import (
 	"github.com/pingcap/parser/ast"
 	"github.com/pingcap/parser/types"
 	_ "github.com/pingcap/tidb/types/parser_driver"
+	"regexp"
 	"strings"
 )
 
@@ -33,5 +34,6 @@ func FillTableInfo(s string, tb *database.Table) error {
 }
 
 func fixSerial(s string) string {
-	return strings.Replace(strings.ToLower(s), "serial", "int", 1)
+	reg1 := regexp.MustCompile("([\b,\t\n]+)(serial)([\b,\t\n]+)")
+	return reg1.ReplaceAllString(strings.ToLower(s), "${1}int${3}")
 }
