@@ -4,6 +4,7 @@ import (
 	"autoAPI/configFile/fields/cicd"
 	"autoAPI/configFile/fields/database"
 	"autoAPI/configFile/fields/docker"
+	"autoAPI/configFile/parser"
 	"encoding/json"
 	"errors"
 	"gopkg.in/yaml.v3"
@@ -22,6 +23,10 @@ type ConfigFile struct {
 func FromYaml(data []byte) (ConfigFile, error) {
 	var result ConfigFile
 	err := yaml.Unmarshal(data, &result)
+	if result.Database.CreateSql != nil &&
+		(result.Database.Table.Fields == nil || result.Database.Table.Name == nil) {
+		err = parser.FillTableInfo(*result.Database.CreateSql, result.Database.Table)
+	}
 	return result, err
 }
 

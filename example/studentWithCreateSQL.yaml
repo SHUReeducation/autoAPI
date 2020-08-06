@@ -1,0 +1,40 @@
+docker:
+  username: zhoudian64
+  tag: 0.0.1
+cicd:
+  GitHubAction: true
+  k8s: true
+database:
+  dbengine: pgsql
+  url: "postgresql://localhost:5432/postgres?sslmode=disable"
+  createsql: "CREATE TABLE student
+              (
+              id        bigserial   not null primary key,
+              name      varchar(24) not null,
+              birthday  date        not null,
+              school_id bigint      not null
+              )"
+  complex:
+    - name: schools
+      sql: "SELECT school.id, name, place
+            FROM school, school_student, school_date
+            WHERE school_student.student_id = $1
+              AND school_date.start_date >= $2
+              AND school_date.end_date <= $3
+              AND school_student.school_id = school.id"
+      params:
+        - onThis: id
+          type: int
+        - name: start_date
+          type: varchar(24)
+        - name: end_date
+          type: varchar(24)
+      result:
+        array: true
+        fields:
+          - name: id
+            type: bigserial
+          - name: name
+            type: varchar(24)
+          - name: place
+            type: varchar(128)
