@@ -7,13 +7,7 @@ cicd:
 database:
   dbengine: pgsql
   url: "postgresql://localhost:5432/postgres?sslmode=disable"
-  createsql: "CREATE TABLE student
-              (
-              id        bigserial   not null primary key,
-              name      varchar(24) not null,
-              birthday  date        not null,
-              school_id bigint      not null
-              )"
+  createsql: "studentCreateSql.sql"
   complex:
     - name: schools
       sql: "SELECT school.id, name, place
