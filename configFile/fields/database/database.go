@@ -124,3 +124,23 @@ func (d *Database) Validate() error {
 	}
 	return FillWithDBAdapter(d)
 }
+
+
+func (d *Database) GetDBEngineModUrl() string {
+	if d.DBEngine == nil {
+		return ""
+	} else if *d.DBEngine == "pgsql" {
+		return "github.com/lib/pq"
+	} else if *d.DBEngine == "mysql" {
+		return "github.com/go-sql-driver/mysql"
+	}
+	return ""
+}
+
+func (d *Database) GetDBEngine() string {
+	if d.DBEngine == nil {
+		return ""
+	} else {
+		return *d.DBEngine
+	}
+}

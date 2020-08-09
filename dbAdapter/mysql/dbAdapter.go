@@ -18,7 +18,7 @@ func (_ dbAdapter) FillFields(url string, tableName withCase.WithCase) ([]field.
 	rows, err := db.Query(`
 		SELECT column_name, data_type
 		FROM information_schema.columns
-  		AND table_name = $1;
+  		WHERE table_name = ?;
 	`, tableName.CamelCase())
 	if err != nil {
 		return nil, err
