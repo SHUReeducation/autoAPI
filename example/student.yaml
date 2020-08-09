@@ -5,8 +5,8 @@ cicd:
   GitHubAction: true
   k8s: true
 database:
-  dbengine: pgsql
-  url: "postgresql://localhost:5432/postgres?sslmode=disable"
+  dbengine: mysql
+  url: "root:@/hhh?charset=utf8"
   tablename: student
   fields:
     - name: name
