@@ -5,7 +5,7 @@ cicd:
   GitHubAction: true
   k8s: true
 database:
-  dbengine: pgsql
+  dbengine: mysql
   url: "root:123456@/hhh?charset=utf8&allowNativePasswords=true&parseTime=true"
   tablename: student
   fields:
