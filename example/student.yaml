@@ -8,13 +8,13 @@ database:
   dbengine: mysql
   url: "root:@/hhh?charset=utf8"
   tablename: student
-  fields:
-    - name: name
-      type: varchar(24)
-    - name: birthday
-      type: date
-    - name: school_id
-      type: int
+  #fields:
+  #  - name: name
+  #    type: varchar(24)
+  #  - name: birthday
+  #    type: date
+  #  - name: school_id
+  #    type: int
   complex:
     - name: schools
       sql: "SELECT school.id, name, place
