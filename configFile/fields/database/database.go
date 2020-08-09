@@ -3,6 +3,7 @@ package database
 import (
 	"autoAPI/configFile/fields/database/field"
 	"autoAPI/dbAdapter"
+	"autoAPI/dbAdapter/mysql"
 	"autoAPI/dbAdapter/pgsql"
 	"autoAPI/utility/withCase"
 	"errors"
@@ -96,6 +97,8 @@ func FillWithDBAdapter(d *Database) error {
 		switch *d.DBEngine {
 		case "pgsql":
 			adapter = pgsql.DBAdapter
+		case "mysql":
+			adapter = mysql.DBAdapter
 		default:
 			return errors.New("unsupported dbms")
 		}
