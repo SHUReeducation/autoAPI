@@ -84,9 +84,10 @@ func (t *Table) Validate() error {
 }
 
 type Database struct {
-	DBEngine *string `yaml:"dbengine" json:"dbengine"`
-	Url      *string `yaml:"url" json:"url"`
-	Table    *Table  `yaml:",inline" json:"table,inline"`
+	DBEngine  *string `yaml:"dbengine" json:"dbengine"`
+	Url       *string `yaml:"url" json:"url"`
+	Table     *Table  `yaml:",inline" json:"table,inline"`
+	CreateSql *string `yaml:"createsql" json:"createsql"`
 }
 
 func FillWithDBAdapter(d *Database) error {
