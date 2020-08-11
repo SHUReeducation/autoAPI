@@ -1,7 +1,7 @@
 package cicdGenerator
 
 import (
-	"autoAPI/configFile"
+	"autoAPI/config"
 	"autoAPI/template/cicd"
 	"os"
 	"path/filepath"
@@ -9,10 +9,10 @@ import (
 
 type CICDGenerator struct{}
 
-func renderKubernetesDeployment(configFile configFile.ConfigFile, dirPath string) error {
+func renderKubernetesDeployment(config config.Config, dirPath string) error {
 
-	kubernetesDeployment := cicd.KubernetesFile(configFile)
-	kubernetesDeploymentFile, err := os.Create(filepath.Join(dirPath, configFile.Database.Table.Name.KebabCase()+".yaml"))
+	kubernetesDeployment := cicd.KubernetesFile(config)
+	kubernetesDeploymentFile, err := os.Create(filepath.Join(dirPath, config.Database.Table.Name.KebabCase()+".yaml"))
 	if err != nil {
 		return err
 	}
@@ -21,7 +21,7 @@ func renderKubernetesDeployment(configFile configFile.ConfigFile, dirPath string
 	return err
 }
 
-func renderGitHubActions(configFile configFile.ConfigFile, dirPath string) error {
+func renderGitHubActions(config config.Config, dirPath string) error {
 	githubActionDir := filepath.Join(dirPath, ".github")
 	if err := os.Mkdir(githubActionDir, 0755); err != nil {
 		return err
@@ -30,7 +30,7 @@ func renderGitHubActions(configFile configFile.ConfigFile, dirPath string) error
 	if err := os.Mkdir(githubActionDir, 0755); err != nil {
 		return err
 	}
-	githubActionFileContent := cicd.GitHubActionDocker(configFile)
+	githubActionFileContent := cicd.GitHubActionDocker(config)
 	githubActionFile, err := os.Create(filepath.Join(githubActionDir, "dockerimage.yml"))
 	if err != nil {
 		return err
@@ -40,16 +40,16 @@ func renderGitHubActions(configFile configFile.ConfigFile, dirPath string) error
 	return err
 }
 
-func (generator CICDGenerator) Generate(configFile configFile.ConfigFile, dirPath string) error {
+func (generator CICDGenerator) Generate(config config.Config, dirPath string) error {
 	// todo: See #33
-	if configFile.CICD.K8s == nil || *configFile.CICD.K8s {
-		err := renderKubernetesDeployment(configFile, dirPath)
+	if config.CICD.K8s == nil || *config.CICD.K8s {
+		err := renderKubernetesDeployment(config, dirPath)
 		if err != nil {
 			return err
 		}
 	}
-	if configFile.CICD.GithubAction == nil || *configFile.CICD.GithubAction {
-		err := renderGitHubActions(configFile, dirPath)
+	if config.CICD.GithubAction == nil || *config.CICD.GithubAction {
+		err := renderGitHubActions(config, dirPath)
 		if err != nil {
 			return err
 		}

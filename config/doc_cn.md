@@ -26,45 +26,16 @@
 
 ## 现有设计
 
-现有设计基于以下几个规定：
-
-- 对每组 (layer, module)，我们需要定义函数`FromXXX`,
-  如 `FromYaml`， `FromFlags`来从某个特定 layer 构造module， 如果有默认值的话可以称之为 `Default`.
+- 大体上，先构造出优先级最高的 `layer` 的总配置信息，再逐层向下构造并合并。
   
-  我们不使用一个 `interface` 来规范这些的原因是：
-  - 无法显式实现 Golang 中的接口，即我们不能通过 `impl XXX` 来强制某个结构体实现某个接口，并在接口改变时得到编译错误。
-  - 对于部分 layers 和/或 modules, 其是否生效取决于其他 layer 和/或 modules 中的值，定死了接口传入这些额外参数就成为了一个难题。
-  - 我们确确实实在这里使用了具体类型而非抽象的接口，在这里用接口也没得到什么好处。
-
-- 对每个 module， 应该有一个 `MergeWith` 函数来将两个不同 layer 的配置合并起来。
-  这个函数一般来说应该像这样：
-  
+  即：
   ```go
-  func (t *T) MergeWith(other *T) {
-    if other == nil {
-      return
-    }
-    if t.Field1 == nil {
-      t.Field1 = other.Field1
-    }
-    if t.Field2 == nil {
-      t.Field2 = other.Field2
-    }
-    // ...
-    t.SubModule1.MergeWith(other.SubModule1)
-    t.SubModule2.MergeWith(other.SubModule2)
-    // ...
-  }
-  ```
-
-- 顶层 module 应该将其不同layer获得的配置全部合并起来
-  ```go
-  result := fromCommand
-  result.MergeWith(fromEnv)
-  result.MergeWith(fromConfigFile)
-  result.MergeWith(fromSql)
-  result.MergeWith(fromDatabase)
-  result.MergeWith(Default)
+  currentConfigure := config.FromCommandLine(commandLine)
+  currentConfigure.MergeWithEnv()
+  currentConfigure.MergeWithconfig(commandLine.config)
+  currentConfigure.MergeWithSQL(commandLine.sqlPath)
+  currentConfigure.MergeWithDB()
+  currentConfigure.MergeWithDefaultValue()
   ```
 
 - 每个 module 应该提供 `Validate` 函数来检查其最终合法性。

@@ -1,17 +1,17 @@
-{% import "autoAPI/configFile" %}
+{% import "autoAPI/config" %}
 
-{% func Dockerfile(configFile configFile.ConfigFile) %}
+{% func Dockerfile(config config.Config) %}
 FROM golang:1.14-alpine as builder
 RUN apk add git
-COPY . /go/src/{%v configFile.Database.Table.Name.CamelCase() %}
+COPY . /go/src/{%v config.Database.Table.Name.CamelCase() %}
 ENV GO111MODULE on
-WORKDIR /go/src/{%v configFile.Database.Table.Name.CamelCase() %}
+WORKDIR /go/src/{%v config.Database.Table.Name.CamelCase() %}
 RUN go mod tidy && go build
 
 FROM alpine
-COPY --from=builder /go/src/{%v configFile.Database.Table.Name.CamelCase() %}/{%v configFile.Database.Table.Name.CamelCase() %} /
+COPY --from=builder /go/src/{%v config.Database.Table.Name.CamelCase() %}/{%v config.Database.Table.Name.CamelCase() %} /
 WORKDIR /
-CMD ./{%v configFile.Database.Table.Name.CamelCase() %}
+CMD ./{%v config.Database.Table.Name.CamelCase() %}
 ENV PORT 8000
 EXPOSE 8000
 {% endfunc %}

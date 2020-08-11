@@ -1,32 +1,32 @@
-{% import "autoAPI/configFile" %}
-{% func KubernetesFile(configFile configFile.ConfigFile) %}
+{% import "autoAPI/config" %}
+{% func KubernetesFile(config config.Config) %}
 kind: Deployment
 metadata:
-  name: {%v configFile.Database.Table.Name.KebabCase() %}
+  name: {%v config.Database.Table.Name.KebabCase() %}
   labels:
-    app: {%v configFile.Database.Table.Name.KebabCase() %}
+    app: {%v config.Database.Table.Name.KebabCase() %}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {%v configFile.Database.Table.Name.KebabCase() %}
+      app: {%v config.Database.Table.Name.KebabCase() %}
     spec:
       containers:
-        - name: {%v configFile.Database.Table.Name.KebabCase() %}
-          image: {%v configFile.Docker.Username %}/{%v configFile.Database.Table.Name.KebabCase() %}:{%v configFile.Docker.Tag %}
+        - name: {%v config.Database.Table.Name.KebabCase() %}
+          image: {%v config.Docker.Username %}/{%v config.Database.Table.Name.KebabCase() %}:{%v config.Docker.Tag %}
           ports:
             - containerPort: 8000
           env:
             - name: DB_ADDRESS
-              value: "{%v *configFile.Database.Url %}"
+              value: "{%v *config.Database.Url %}"
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: {%v configFile.Database.Table.Name.KebabCase() %}-svc
+  name: {%v config.Database.Table.Name.KebabCase() %}-svc
 spec:
   selector:
-    app: {%v configFile.Database.Table.Name.KebabCase() %}
+    app: {%v config.Database.Table.Name.KebabCase() %}
   ports:
     - protocol: TCP
       port: 8000

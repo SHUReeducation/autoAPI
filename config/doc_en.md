@@ -8,7 +8,7 @@ See [our wiki](https://github.com/SHUReeducation/autoAPI/wiki/Config).
 
 ## Definitions
 
-- layer: A certain kind of way to define some part of the config, eg. `ConfigFile layer`, `CommandLineFlags layer`.
+- layer: A certain kind of way to define some part of the config, eg. `config layer`, `CommandLineFlags layer`.
 
 - module: A certain `struct` which is part of the config, eg. `Table`, `Database`
 
@@ -67,7 +67,7 @@ Current design is based on several rules:
   ```go
   result := fromCommand
   result.MergeWith(fromEnv)
-  result.MergeWith(fromConfigFile)
+  result.MergeWith(fromconfig)
   result.MergeWith(fromSql)
   result.MergeWith(fromDatabase)
   result.MergeWith(Default)

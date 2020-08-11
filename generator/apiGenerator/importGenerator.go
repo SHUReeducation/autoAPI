@@ -1,7 +1,7 @@
 package apiGenerator
 
-import "autoAPI/configFile"
+import "autoAPI/config"
 
 type Generator interface {
-	Generate(configFile configFile.ConfigFile) []string
+	Generate(config config.Config) []string
 }
