@@ -1,5 +1,4 @@
 database:
-  dbengine: mysql
   tablename: student
   fields:
     - name: name
