@@ -3,6 +3,7 @@ package database
 import (
 	"autoAPI/configFile/fields/database/field"
 	"autoAPI/dbAdapter"
+	"autoAPI/dbAdapter/mysql"
 	"autoAPI/dbAdapter/pgsql"
 	"autoAPI/utility/withCase"
 	"errors"
@@ -96,6 +97,8 @@ func FillWithDBAdapter(d *Database) error {
 		switch *d.DBEngine {
 		case "pgsql":
 			adapter = pgsql.DBAdapter
+		case "mysql":
+			adapter = mysql.DBAdapter
 		default:
 			return errors.New("unsupported dbms")
 		}
@@ -120,4 +123,28 @@ func (d *Database) Validate() error {
 		return err
 	}
 	return FillWithDBAdapter(d)
+}
+
+func (d *Database) GetDBEngineModUrl() string {
+	if d.DBEngine == nil {
+		return ""
+	} else if *d.DBEngine == "pgsql" {
+		return "github.com/lib/pq"
+	} else if *d.DBEngine == "mysql" {
+		return "github.com/go-sql-driver/mysql"
+	}
+	return ""
+}
+
+func (d *Database) GetDBEngine() string {
+	if d.DBEngine == nil {
+		return ""
+	} else {
+		switch *d.DBEngine {
+		case "pgsql":
+			return "postgres"
+		default:
+			return *d.DBEngine
+		}
+	}
 }
