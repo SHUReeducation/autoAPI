@@ -2,7 +2,7 @@
 {% import importGenerator "autoAPI/generator/apiGenerator/golang/importGenerator" %}
 {% import typeTransformer "autoAPI/generator/apiGenerator/golang/typeTransformer" %}
 
-{% func Model(config config.Config) %}
+{% func ModelQ(config config.Config) %}
 package model
 
 import (
@@ -18,17 +18,19 @@ type {%v config.Database.Table.Name.PascalCase() %} struct {
 }
 
 func Create(object {%v config.Database.Table.Name.PascalCase() %}) ({%v config.Database.Table.Name.PascalCase() %}, error) {
-    row := infrastructure.DB.QueryRow(`
+    ret, err := infrastructure.DB.Exec(`
     INSERT INTO {%v config.Database.Table.Name.PascalCase() %}({% for i, field := range config.Database.Table.Fields %}{%v field.Name.SnakeCase() %}{% if i + 1 < len(config.Database.Table.Fields) %}, {% endif %}{% endfor %})
-    VALUES ({% for i := range config.Database.Table.Fields %}${%d i+1 %}{% if i + 1 < len(config.Database.Table.Fields) %}, {% endif %}{% endfor %}) RETURNING id;`, {% for i, field := range config.Database.Table.Fields %}object.{%v field.Name.PascalCase() %}{% if i + 1 < len(config.Database.Table.Fields) %}, {% endif %}{% endfor %})
-    err := row.Scan(&object.Id)
+    VALUES ({% for i := range config.Database.Table.Fields %}(?){% if i + 1 < len(config.Database.Table.Fields) %}, {% endif %}{% endfor %})`, {% for i, field := range config.Database.Table.Fields %}object.{%v field.Name.PascalCase() %}{% if i + 1 < len(config.Database.Table.Fields) %}, {% endif %}{% endfor %})
+    if ret != nil {
+        object.Id, _ = ret.LastInsertId()
+    }
     return object, err
 }
 
 func Get(id int64) ({%v config.Database.Table.Name.PascalCase() %}, error) {
     row := infrastructure.DB.QueryRow(`
 		SELECT {% for i, field := range config.Database.Table.Fields %}{%v field.Name.SnakeCase() %}{% if i + 1 < len(config.Database.Table.Fields) %}, {% endif %}{% endfor %}
-		FROM {%v config.Database.Table.Name.SnakeCase() %} WHERE id=$1;`, id)
+		FROM {%v config.Database.Table.Name.SnakeCase() %} WHERE id=(?);`, id)
     object := {%v config.Database.Table.Name.PascalCase() %} { Id: id }
     err := row.Scan({% for i, field := range config.Database.Table.Fields %}&object.{%v field.Name.PascalCase() %}{% if i + 1 < len(config.Database.Table.Fields) %}, {% endif %}{% endfor %})
     return object, err
@@ -38,7 +40,7 @@ func Scan(offset uint64, limit uint64) ([]{%v config.Database.Table.Name.PascalC
     rows, err := infrastructure.DB.Query(`
         SELECT id, {% for i, field := range config.Database.Table.Fields %}{%v field.Name.SnakeCase() %}{% if i + 1 < len(config.Database.Table.Fields) %}, {% endif %}{% endfor %}
         FROM {%v config.Database.Table.Name.SnakeCase() %}
-        LIMIT $1 OFFSET $2;`, limit, offset)
+        LIMIT ? OFFSET ?;`, limit, offset)
     if err != nil {
         return nil, err
     }
@@ -57,17 +59,20 @@ func Scan(offset uint64, limit uint64) ([]{%v config.Database.Table.Name.PascalC
 func Put(object {%v config.Database.Table.Name.PascalCase() %}) ({%v config.Database.Table.Name.PascalCase() %}, error) {
     row := infrastructure.DB.QueryRow(`
         UPDATE {%v config.Database.Table.Name.SnakeCase() %}
-        SET {% for i, field := range config.Database.Table.Fields %}{%v field.Name.SnakeCase() %}=${%d i + 2 %}{% if i + 1 < len(config.Database.Table.Fields) %}, {% endif %}{% endfor %}
-        WHERE id=$1
-        RETURNING id{% for _, field := range config.Database.Table.Fields %}, {%v field.Name.SnakeCase() %}{% endfor %};
-        `, object.Id, {% for i, field := range config.Database.Table.Fields %}object.{%v field.Name.PascalCase() %}{% if i + 1 < len(config.Database.Table.Fields) %}, {% endif %}{% endfor %})
+        SET {% for i, field := range config.Database.Table.Fields %}{%v field.Name.SnakeCase() %}=(?){% if i + 1 < len(config.Database.Table.Fields) %}, {% endif %}{% endfor %}
+        WHERE id=(?)
+        `, {% for i, field := range config.Database.Table.Fields %}object.{%v field.Name.PascalCase() %}{% if i + 1 < len(config.Database.Table.Fields) %}, {% endif %}{% endfor %}, object.Id)
+    row = infrastructure.DB.QueryRow(`
+            SELECT id{% for _, field := range config.Database.Table.Fields %}, {%v field.Name.SnakeCase() %}{% endfor %}
+            FROM {%v config.Database.Table.Name.SnakeCase() %} WHERE id=(?)
+            `, object.Id)
     err := row.Scan(&object.Id, {% for i, field := range config.Database.Table.Fields %}&object.{%v field.Name.PascalCase() %}{% if i + 1 < len(config.Database.Table.Fields) %}, {% endif %}{% endfor %})
     return object, err
 }
 
 func Delete(id int64) error {
     _, err := infrastructure.DB.Exec(`
-        DELETE FROM {%v config.Database.Table.Name.SnakeCase() %} WHERE id=$1;
+        DELETE FROM {%v config.Database.Table.Name.SnakeCase() %} WHERE id=(?);
         `, id)
     return err
 }
@@ -83,8 +88,8 @@ func ({%v config.Database.Table.Name.CamelCase() %} *{%v config.Database.Table.N
 ) ({% if complex.Result.Array %}[]{% endif %}{%v complex.Name.PascalCase() %}, error)  {
 {%- if complex.Result.Array -%}
     rows, err := infrastructure.DB.Query(`{%v= complex.SQL %}
-        LIMIT ${%v len(complex.Params) + 1 %}
-        OFFSET ${%v len(complex.Params) + 2 %};`, {% for _, param := range complex.Params -%}{%- if param.Name != nil -%}{%-v param.Name.CamelCase() -%}{%- else -%}{%-v config.Database.Table.Name.CamelCase() %}.{%v param.OnThis.PascalCase() -%}{%- endif -%}, {% endfor -%}limit, offset)
+        LIMIT ?
+        OFFSET ?;`, {% for _, param := range complex.Params -%}{%- if param.Name != nil -%}{%-v param.Name.CamelCase() -%}{%- else -%}{%-v config.Database.Table.Name.CamelCase() %}.{%v param.OnThis.PascalCase() -%}{%- endif -%}, {% endfor -%}limit, offset)
     if err != nil {
         return nil, err
     }
@@ -110,8 +115,8 @@ func Get{%v complex.Name.PascalCase() %}({%- for _, param := range complex.Param
 ) ({% if complex.Result.Array %}[]{% endif %}{%v complex.Name.PascalCase() %}, error)  {
 {%- if complex.Result.Array -%}
     rows, err := infrastructure.DB.Query(`{%v= complex.SQL %}
-        LIMIT ${%v len(complex.Params) + 1 %}
-        OFFSET ${%v len(complex.Params) + 2 %};`, {% for _, param := range complex.Params -%}{%-v param.Name.CamelCase() -%}, {% endfor -%}limit, offset)
+        LIMIT ?
+        OFFSET ?;`, {% for _, param := range complex.Params -%}{%-v param.Name.CamelCase() -%}, {% endfor -%}limit, offset)
     if err != nil {
         return nil, err
     }

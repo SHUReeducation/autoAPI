@@ -5,6 +5,7 @@ import (
 	"errors"
 	_ "github.com/lib/pq"
 	"github.com/urfave/cli/v2"
+	"os"
 )
 
 type Database struct {
@@ -35,6 +36,14 @@ func (database *Database) MergeWith(other *Database) {
 	} else {
 		database.Table.MergeWith(other.Table)
 	}
+}
+
+func (database *Database) MergeWithDefault() error {
+	if database.DBEngine == nil || *database.DBEngine == "" {
+		t := "pgsql"
+		database.DBEngine = &t
+	}
+	return nil
 }
 
 func (database *Database) Validate() error {
@@ -71,6 +80,22 @@ func FromCommandLine(c *cli.Context) (*Database, error) {
 	return &result, err
 }
 
+func (database *Database) MergeWithEnv() error {
+	if database.Url == nil {
+		if url := os.Getenv("DB_ADDRESS"); url != "" {
+			if url[:len("pgsql")] == "pgsql" || url[:len("postgres")] == "postgres" || url[:len("postgresql")] == "postgresql" {
+				t := "pgsql"
+				database.DBEngine = &t
+			} else if url[:len("mysql")] == "mysql" {
+				t := "mysql"
+				database.DBEngine = &t
+			}
+			database.Url = &url
+		}
+	}
+	return nil
+}
+
 func (database *Database) MergeWithSQL(sqlFilePath string) error {
 	if database.DBEngine == nil || *database.DBEngine == "" {
 		t := "pgsql"
@@ -80,5 +105,28 @@ func (database *Database) MergeWithSQL(sqlFilePath string) error {
 }
 
 func (database *Database) MergeWithDB() error {
-	return database.Table.MergeWithDB(*database.Url, *database.DBEngine)
+	if database.Url != nil {
+		return database.Table.MergeWithDB(*database.Url, *database.DBEngine)
+	}
+	return nil
+}
+
+func (database *Database) GetDBEngineModUrl() string {
+	switch *database.DBEngine {
+	case "pgsql":
+		return "github.com/lib/pq"
+	case "mysql":
+		return "github.com/go-sql-driver/mysql"
+	default:
+		panic("unsupported dbms")
+	}
+}
+
+func (database *Database) GetDBEngine() string {
+	switch *database.DBEngine {
+	case "pgsql":
+		return "postgres"
+	default:
+		return *database.DBEngine
+	}
 }

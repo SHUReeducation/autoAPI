@@ -69,7 +69,14 @@ func renderModel(config config.Config, dirPath string) error {
 	if err != nil {
 		return err
 	}
-	modelFileContent := model.Model(config)
+	var modelFileContent string
+	if config.Database.DBEngine != nil {
+		if config.Database.GetDBEngine() == "mysql" {
+			modelFileContent = model.ModelQ(config)
+		} else {
+			modelFileContent = model.Model(config)
+		}
+	}
 	modelFile, err := os.Create(filepath.Join(modelDir, "model.go"))
 	if err != nil {
 		return err
@@ -79,13 +86,13 @@ func renderModel(config config.Config, dirPath string) error {
 	return err
 }
 
-func renderDB(dirPath string) error {
+func renderDB(config config.Config, dirPath string) error {
 	infrastructureDir := filepath.Join(dirPath, "infrastructure")
 	err := os.Mkdir(infrastructureDir, 0755)
 	if err != nil {
 		return err
 	}
-	dbFileContent := infrastructure.DB()
+	dbFileContent := infrastructure.DB(config)
 	dbFile, err := os.Create(filepath.Join(infrastructureDir, "db.go"))
 	if err != nil {
 		return err
@@ -103,7 +110,7 @@ func (generator APIGenerator) Generate(config config.Config, dirPath string) err
 	if err = os.Mkdir(dirPath, 0755); err != nil {
 		return err
 	}
-	if err = renderDB(dirPath); err != nil {
+	if err = renderDB(config, dirPath); err != nil {
 		return err
 	}
 	if err = renderModel(config, dirPath); err != nil {

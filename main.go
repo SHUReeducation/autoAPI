@@ -68,13 +68,13 @@ func main() {
 				if err != nil {
 					return err
 				}
-				if c.Bool("force") {
+				if c.IsSet("force") {
 					err = os.RemoveAll(c.String("output"))
 					if err != nil {
 						return err
 					}
 				} else {
-					return errors.New("Output PATH dir already exists. Use '-h' or '-help' to get more information")
+					return errors.New("output dir already exists. Use '--force' to force remove it")
 				}
 			}
 			gen := golang.APIGenerator{}

@@ -27,7 +27,7 @@
 ## 现有设计
 
 - 大体上，先构造出优先级最高的 `layer` 的总配置信息，再逐层向下构造并合并。
-  
+    
   即：
   ```go
   currentConfigure := config.FromCommandLine(commandLine)
@@ -37,6 +37,11 @@
   currentConfigure.MergeWithDB()
   currentConfigure.MergeWithDefaultValue()
   ```
+  
+  我们不使用 interface 规范每个层之间的 merge 行为的原因是：
+    - Golang 的 interface 并没有强制性。我们不能用 `impl XXX` 来强制某个 `struct` 实现某个 `interface`.
+    - 有些模块的有些层需要一些来自顶层模块的参数，所以这个 `interface` 抽象不出来。
+    - 这里引入一个 `interface` 没有啥好处 —— 我们还是用的具体的类型。
 
 - 每个 module 应该提供 `Validate` 函数来检查其最终合法性。
   

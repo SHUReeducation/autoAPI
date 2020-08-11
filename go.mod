@@ -15,6 +15,7 @@ require (
 	github.com/cznic/mathutil v0.0.0-20181122101859-297441e03548 // indirect
 	github.com/cznic/sortutil v0.0.0-20181122101858-f5f958428db8 // indirect
 	github.com/etcd-io/gofail v0.0.0-20190801230047-ad7f989257ca // indirect
+	github.com/go-sql-driver/mysql v0.0.0-20170715192408-3955978caca4
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/google/btree v1.0.0 // indirect

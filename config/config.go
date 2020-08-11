@@ -32,6 +32,9 @@ func FromCommandLine(c *cli.Context) (*Config, error) {
 }
 
 func (c *Config) MergeWithEnv() error {
+	if err := c.Database.MergeWithEnv(); err != nil {
+		return err
+	}
 	return c.Docker.MergeWithEnv()
 }
 
@@ -53,8 +56,15 @@ func (c *Config) MergeWithDB() error {
 }
 
 func (c *Config) MergeWithDefault() error {
-	if err := c.CICD.MergeWithDefault(); err != nil {
-		return err
+	if c.CICD != nil {
+		if err := c.CICD.MergeWithDefault(); err != nil {
+			return err
+		}
+	}
+	if c.Database != nil {
+		if err := c.Database.MergeWithDefault(); err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -109,7 +119,7 @@ func (c *Config) MergeWith(other *Config) {
 }
 
 func (c *Config) Validate() error {
-	if c.CICD.K8s == nil && c.CICD.GithubAction == nil {
+	if c.CICD != nil && c.CICD.K8s == nil && c.CICD.GithubAction == nil {
 		c.CICD = nil
 	}
 	err := c.Database.Validate()
