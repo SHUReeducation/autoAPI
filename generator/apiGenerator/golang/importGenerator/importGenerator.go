@@ -1,8 +1,8 @@
 package golangImportGenerator
 
 import (
-	"autoAPI/configFile"
-	"autoAPI/configFile/fields/database/field"
+	"autoAPI/config"
+	"autoAPI/config/fields/database/field"
 	typeTransformer "autoAPI/generator/apiGenerator/golang/typeTransformer"
 )
 
@@ -21,9 +21,9 @@ func importFor(f field.Field) *string {
 	}
 }
 
-func (i importGenerator) Generate(configFile configFile.ConfigFile) []string {
+func (i importGenerator) Generate(config config.Config) []string {
 	set := map[string]bool{}
-	for _, currentField := range configFile.Database.Table.Fields {
+	for _, currentField := range config.Database.Table.Fields {
 		forField := importFor(currentField)
 		if forField != nil {
 			set[*forField] = true

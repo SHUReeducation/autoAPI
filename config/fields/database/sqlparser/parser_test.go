@@ -1,8 +1,6 @@
-package parser
+package sqlparser
 
 import (
-	"autoAPI/configFile/fields/database"
-	"fmt"
 	"testing"
 )
 
@@ -44,11 +42,14 @@ func TestFixBigSerial(t *testing.T) {
 	}
 }
 
-func TestFillTableInfo(t *testing.T) {
-	var tb database.Table
-	err := FillTableInfo("../../example/studentCreateSql.sql", &tb)
-	if tb.Name.CamelCase() != "student" {
-		t.Errorf("FillTableInfo fail %v", err)
+func TestParseCreateTable(t *testing.T) {
+	name, _, err := ParseCreateTable("../../example/studentCreateSql.sql", "pgsql")
+	if err != nil {
+		t.Errorf("ParseCreateTable fail, should parsed successfully, err=")
+		t.Fatal(err)
 	}
-	fmt.Print(tb)
+	if name.CamelCase() != "student" {
+		t.Errorf("ParseCreateTable fail, expect name to be \"student\", found %v", name)
+		t.FailNow()
+	}
 }

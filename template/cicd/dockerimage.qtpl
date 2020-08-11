@@ -1,6 +1,6 @@
-{% import "autoAPI/configFile" %}
+{% import "autoAPI/config" %}
 
-{% func GitHubActionDocker(configFile configFile.ConfigFile) %}
+{% func GitHubActionDocker(config config.Config) %}
 name: Docker Image CI
 on: [push]
 
@@ -11,8 +11,8 @@ jobs:
       - uses: actions/checkout@v1
       - name: Build the Docker image
         run: |
-          docker build . -t {%v configFile.Database.Table.Name.KebabCase() %}
-          docker tag {%v configFile.Database.Table.Name.KebabCase() %} {%v configFile.Docker.Username %}/{%v configFile.Database.Table.Name.KebabCase() %}:{%v configFile.Docker.Tag %}
-          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login --username "{%v configFile.Docker.Username %}" --password-stdin
-          docker push {%v configFile.Docker.Username %}/{%v configFile.Database.Table.Name.KebabCase() %}:{%v configFile.Docker.Tag %}
+          docker build . -t {%v config.Database.Table.Name.KebabCase() %}
+          docker tag {%v config.Database.Table.Name.KebabCase() %} {%v config.Docker.Username %}/{%v config.Database.Table.Name.KebabCase() %}:{%v config.Docker.Tag %}
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login --username "{%v config.Docker.Username %}" --password-stdin
+          docker push {%v config.Docker.Username %}/{%v config.Database.Table.Name.KebabCase() %}:{%v config.Docker.Tag %}
 {% endfunc %}

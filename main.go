@@ -4,7 +4,7 @@
 package main
 
 import (
-	"autoAPI/configFile"
+	"autoAPI/config"
 	"autoAPI/generator/apiGenerator/golang"
 	"autoAPI/generator/cicdGenerator"
 	"errors"
@@ -17,10 +17,9 @@ func main() {
 	err := (&cli.App{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:     "file",
-				Aliases:  []string{"f"},
-				Usage:    "Load configuration from `FILE`",
-				Required: true,
+				Name:    "file",
+				Aliases: []string{"f"},
+				Usage:   "Load configuration from `FILE`",
 			},
 			&cli.StringFlag{
 				Name:     "output",
@@ -31,17 +30,37 @@ func main() {
 			&cli.BoolFlag{
 				Name:  "force",
 				Value: false,
-				Usage: "If the output PATH dir exists, use '-force' to overwrite it",
+				Usage: "If the output PATH dir exists, use '--force' to overwrite it",
 			},
 		},
 		Name:  "autoAPI",
 		Usage: "Generate an CRUD api endpoint program automatically!",
 		Action: func(c *cli.Context) error {
-			f, err := configFile.LoadConfigFile(c.String("file"))
-			if err != nil {
+			var currentConfigure *config.Config
+			var err error
+			if currentConfigure, err = config.FromCommandLine(c); err != nil {
 				return err
 			}
-			err = f.Validate()
+			if err = currentConfigure.MergeWithEnv(); err != nil {
+				return err
+			}
+			if configPath := c.String("file"); configPath != "" {
+				if err = currentConfigure.MergeWithConfig(c.String("file")); err != nil {
+					return err
+				}
+			}
+			if sqlFilePath := c.String("sql"); sqlFilePath != "" {
+				if err = currentConfigure.MergeWithSQL(c.String("sql")); err != nil {
+					return err
+				}
+			}
+			if err = currentConfigure.MergeWithDB(); err != nil {
+				return err
+			}
+			if err = currentConfigure.MergeWithDefault(); err != nil {
+				return err
+			}
+			err = currentConfigure.Validate()
 			if err != nil {
 				return err
 			}
@@ -60,12 +79,11 @@ func main() {
 			}
 			gen := golang.APIGenerator{}
 			cicdGen := cicdGenerator.CICDGenerator{}
-			if err = gen.Generate(f, c.String("output")); err != nil {
+			if err = gen.Generate(*currentConfigure, c.String("output")); err != nil {
 				return err
 			}
-			// todo: See #33
-			if f.CICD != nil {
-				err = cicdGen.Generate(f, c.String("output"))
+			if currentConfigure.CICD != nil {
+				err = cicdGen.Generate(*currentConfigure, c.String("output"))
 			}
 			return err
 		},
