@@ -125,7 +125,6 @@ func (d *Database) Validate() error {
 	return FillWithDBAdapter(d)
 }
 
-
 func (d *Database) GetDBEngineModUrl() string {
 	if d.DBEngine == nil {
 		return ""
@@ -141,6 +140,11 @@ func (d *Database) GetDBEngine() string {
 	if d.DBEngine == nil {
 		return ""
 	} else {
-		return *d.DBEngine
+		switch *d.DBEngine {
+		case "pgsql":
+			return "postgres"
+		default:
+			return *d.DBEngine
+		}
 	}
 }
