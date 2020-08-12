@@ -1,7 +1,7 @@
 package pgsql
 
 import (
-	"autoAPI/configFile/fields/database/field"
+	"autoAPI/config/fields/database/field"
 	"autoAPI/utility/withCase"
 	"database/sql"
 	_ "github.com/lib/pq"
@@ -10,7 +10,7 @@ import (
 type dbAdapter struct {
 }
 
-func (_ dbAdapter) FillFields(url string, tableName withCase.WithCase) ([]field.Field, error) {
+func (_ dbAdapter) GetFields(url string, tableName withCase.WithCase) ([]field.Field, error) {
 	db, err := sql.Open("postgres", url)
 	if err != nil {
 		return nil, err

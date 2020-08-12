@@ -1,10 +1,10 @@
-{% import "autoAPI/configFile" %}
+{% import "autoAPI/config" %}
 
-{% func Handler(configFile configFile.ConfigFile) %}
+{% func Handler(config config.Config) %}
 package handler
 
 import (
-    "{%v configFile.Database.Table.Name.CamelCase() %}/model"
+    "{%v config.Database.Table.Name.CamelCase() %}/model"
     "encoding/json"
     "io/ioutil"
     "log"
@@ -16,16 +16,16 @@ import (
 func PostHandler(w http.ResponseWriter, r *http.Request) {
     w.Header().Add("Content-Type", "application/json")
     body, _ := ioutil.ReadAll(r.Body)
-    var toCreate model.{%v configFile.Database.Table.Name.PascalCase() %}
+    var toCreate model.{%v config.Database.Table.Name.PascalCase() %}
     _ = json.Unmarshal(body, &toCreate)
     result, err := model.Create(toCreate)
     if err != nil {
-        log.Println("Create {%v configFile.Database.Table.Name.PascalCase() %} failed")
+        log.Println("Create {%v config.Database.Table.Name.PascalCase() %} failed")
         _, _ = w.Write([]byte(err.Error()))
         w.WriteHeader(http.StatusInternalServerError)
         return
     } else {
-        log.Println("{%v configFile.Database.Table.Name.PascalCase() %} ", result, " created")
+        log.Println("{%v config.Database.Table.Name.PascalCase() %} ", result, " created")
     }
     response, err := json.Marshal(result)
     w.WriteHeader(http.StatusCreated)
@@ -86,16 +86,16 @@ func ScanHandler(w http.ResponseWriter, r *http.Request) {
 func PutHandler(w http.ResponseWriter, r *http.Request) {
     w.Header().Add("Content-Type", "application/json")
     body, _ := ioutil.ReadAll(r.Body)
-    var toUpdate model.{%v configFile.Database.Table.Name.PascalCase() %}
+    var toUpdate model.{%v config.Database.Table.Name.PascalCase() %}
     _ = json.Unmarshal(body, &toUpdate)
     result, err := model.Put(toUpdate)
     if err != nil {
-        log.Println("Update {%v configFile.Database.Table.Name.CamelCase() %} failed")
+        log.Println("Update {%v config.Database.Table.Name.CamelCase() %} failed")
         _, _ = w.Write([]byte(err.Error()))
         w.WriteHeader(http.StatusInternalServerError)
         return
     } else {
-        log.Println("{%v configFile.Database.Table.Name.PascalCase() %}", toUpdate, "updated")
+        log.Println("{%v config.Database.Table.Name.PascalCase() %}", toUpdate, "updated")
         resp, _ := json.Marshal(result)
         w.WriteHeader(http.StatusCreated)
         _, _ = w.Write(resp)
@@ -112,17 +112,17 @@ func DeleteHandler(w http.ResponseWriter, r *http.Request) {
     }
     err = model.Delete(id)
     if err != nil {
-        log.Println("Delete {%v configFile.Database.Table.Name.CamelCase() %} failed")
+        log.Println("Delete {%v config.Database.Table.Name.CamelCase() %} failed")
         _, _ = w.Write([]byte(err.Error()))
         w.WriteHeader(http.StatusInternalServerError)
         return
     } else {
-        log.Println("{%v configFile.Database.Table.Name.PascalCase() %} id=", id, " deleted")
+        log.Println("{%v config.Database.Table.Name.PascalCase() %} id=", id, " deleted")
         w.WriteHeader(http.StatusNoContent)
     }
 }
 
-{% for _, complex := range configFile.Database.Table.Complex %}
+{% for _, complex := range config.Database.Table.Complex %}
 func {%v complex.Name.PascalCase() %}Handler(w http.ResponseWriter, r *http.Request) {
     w.Header().Add("Content-Type", "application/json")
     {%- if complex.Result.Array -%}

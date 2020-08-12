@@ -1,10 +1,10 @@
-{% import "autoAPI/configFile" %}
-{% func DB(configFile configFile.ConfigFile) %}
+{% import "autoAPI/config" %}
+{% func DB(config config.Config) %}
 package infrastructure
 
 import (
 	"database/sql"
-	_ "{%v configFile.Database.GetDBEngineModUrl() %}"
+	_ "{%v config.Database.GetDBEngineModUrl() %}"
 	"os"
 )
 
@@ -12,7 +12,7 @@ var DB *sql.DB
 
 func init() {
 	var err error
-	DB, err = sql.Open("{%v configFile.Database.GetDBEngine() %}", os.Getenv("DB_ADDRESS"))
+	DB, err = sql.Open("{%v config.Database.GetDBEngine() %}", os.Getenv("DB_ADDRESS"))
 	if err != nil {
 		panic(err)
 	}

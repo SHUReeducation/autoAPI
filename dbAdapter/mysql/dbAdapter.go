@@ -1,7 +1,7 @@
 package mysql
 
 import (
-	"autoAPI/configFile/fields/database/field"
+	"autoAPI/config/fields/database/field"
 	"autoAPI/utility/withCase"
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"

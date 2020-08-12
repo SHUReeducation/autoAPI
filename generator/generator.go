@@ -1,9 +1,9 @@
 package generator
 
 import (
-	"autoAPI/configFile"
+	"autoAPI/config"
 )
 
 type Generator interface {
-	Generate(configFile configFile.ConfigFile, dirPath string) error
+	Generate(config config.Config, dirPath string) error
 }
