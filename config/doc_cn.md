@@ -38,6 +38,7 @@
   currentConfigure.MergeWithDefaultValue()
   ```
   
+  其中每个 module 合并时会"递归地"合并其子 module 。
   我们不使用 interface 规范每个层之间的 merge 行为的原因是：
     - Golang 的 interface 并没有强制性。我们不能用 `impl XXX` 来强制某个 `struct` 实现某个 `interface`.
     - 有些模块的有些层需要一些来自顶层模块的参数，所以这个 `interface` 抽象不出来。

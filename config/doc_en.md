@@ -40,6 +40,7 @@ So we need to find out how can we overcome these problems.
   currentConfigure.MergeWithDefaultValue()
   ```
   
+  Every module will merge its submodule "recursively".
   The reason why we don't use an interface to normalize the merge behaviour of merging is 
   - Interfaces in Golang doesn't require to be implemented explicitly. 
     We cannot use `impl XXX` to force some struct to implement some interface.
