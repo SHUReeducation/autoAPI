@@ -77,6 +77,10 @@ func main() {
 					return errors.New("output dir already exists. Use '--force' to force remove it")
 				}
 			}
+			log.Println(*currentConfigure.Database.DBEngine)
+			if currentConfigure.Database.Url != nil {
+				log.Println(*currentConfigure.Database.Url)
+			}
 			gen := golang.APIGenerator{}
 			cicdGen := cicdGenerator.CICDGenerator{}
 			if err = gen.Generate(*currentConfigure, c.String("output")); err != nil {
