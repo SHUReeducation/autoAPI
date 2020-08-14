@@ -1,4 +1,4 @@
-CREATE TABLE student
+CREATE TABLE Student
 (
     id        bigint auto_increment not null primary key,
     name      varchar(24)           not null,
@@ -7,7 +7,7 @@ CREATE TABLE student
 );
 
 -- some fake data
-INSERT INTO student(name, birthday, school_id)
+INSERT INTO Student(name, birthday, school_id)
 VALUES ('A', '1990-01-01', 1),
        ('B', '1991-02-02', 2),
        ('C', '1992-03-03', 3),
