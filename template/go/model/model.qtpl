@@ -28,7 +28,7 @@ func Create(object {%v config.Database.Table.Name.PascalCase() %}) ({%v config.D
 func Get(id int64) ({%v config.Database.Table.Name.PascalCase() %}, error) {
     row := infrastructure.DB.QueryRow(`
 		SELECT {% for i, field := range config.Database.Table.Fields %}{%v field.Name.SnakeCase() %}{% if i + 1 < len(config.Database.Table.Fields) %}, {% endif %}{% endfor %}
-		FROM {%v config.Database.Table.Name.SnakeCase() %} WHERE id=$1;`, id)
+		FROM {%v config.Database.Table.Name.PascalCase() %} WHERE id=$1;`, id)
     object := {%v config.Database.Table.Name.PascalCase() %} { Id: id }
     err := row.Scan({% for i, field := range config.Database.Table.Fields %}&object.{%v field.Name.PascalCase() %}{% if i + 1 < len(config.Database.Table.Fields) %}, {% endif %}{% endfor %})
     return object, err
@@ -37,7 +37,7 @@ func Get(id int64) ({%v config.Database.Table.Name.PascalCase() %}, error) {
 func Scan(offset uint64, limit uint64) ([]{%v config.Database.Table.Name.PascalCase() %}, error) {
     rows, err := infrastructure.DB.Query(`
         SELECT id, {% for i, field := range config.Database.Table.Fields %}{%v field.Name.SnakeCase() %}{% if i + 1 < len(config.Database.Table.Fields) %}, {% endif %}{% endfor %}
-        FROM {%v config.Database.Table.Name.SnakeCase() %}
+        FROM {%v config.Database.Table.Name.PascalCase() %}
         LIMIT $1 OFFSET $2;`, limit, offset)
     if err != nil {
         return nil, err
@@ -56,7 +56,7 @@ func Scan(offset uint64, limit uint64) ([]{%v config.Database.Table.Name.PascalC
 
 func Put(object {%v config.Database.Table.Name.PascalCase() %}) ({%v config.Database.Table.Name.PascalCase() %}, error) {
     row := infrastructure.DB.QueryRow(`
-        UPDATE {%v config.Database.Table.Name.SnakeCase() %}
+        UPDATE {%v config.Database.Table.Name.PascalCase() %}
         SET {% for i, field := range config.Database.Table.Fields %}{%v field.Name.SnakeCase() %}=${%d i + 2 %}{% if i + 1 < len(config.Database.Table.Fields) %}, {% endif %}{% endfor %}
         WHERE id=$1
         RETURNING id{% for _, field := range config.Database.Table.Fields %}, {%v field.Name.SnakeCase() %}{% endfor %};
@@ -67,7 +67,7 @@ func Put(object {%v config.Database.Table.Name.PascalCase() %}) ({%v config.Data
 
 func Delete(id int64) error {
     _, err := infrastructure.DB.Exec(`
-        DELETE FROM {%v config.Database.Table.Name.SnakeCase() %} WHERE id=$1;
+        DELETE FROM {%v config.Database.Table.Name.PascalCase() %} WHERE id=$1;
         `, id)
     return err
 }

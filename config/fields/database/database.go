@@ -105,7 +105,7 @@ func (database *Database) MergeWithSQL(sqlFilePath string) error {
 }
 
 func (database *Database) MergeWithDB() error {
-	if database.Url != nil {
+	if database.DBEngine != nil && database.Url != nil {
 		return database.Table.MergeWithDB(*database.Url, *database.DBEngine)
 	}
 	return nil

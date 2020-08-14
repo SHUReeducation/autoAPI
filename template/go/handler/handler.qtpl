@@ -20,12 +20,12 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
     _ = json.Unmarshal(body, &toCreate)
     result, err := model.Create(toCreate)
     if err != nil {
-        log.Println("Create {%v config.Database.Table.Name.PascalCase() %} failed")
-        _, _ = w.Write([]byte(err.Error()))
+        log.Println("Create {%v config.Database.Table.Name.PascalCase() %} failed:", err)
         w.WriteHeader(http.StatusInternalServerError)
+        _, _ = w.Write([]byte(err.Error()))
         return
     } else {
-        log.Println("{%v config.Database.Table.Name.PascalCase() %} ", result, " created")
+        log.Println("{%v config.Database.Table.Name.PascalCase() %}", result, "created")
     }
     response, err := json.Marshal(result)
     w.WriteHeader(http.StatusCreated)
@@ -117,7 +117,7 @@ func DeleteHandler(w http.ResponseWriter, r *http.Request) {
         w.WriteHeader(http.StatusInternalServerError)
         return
     } else {
-        log.Println("{%v config.Database.Table.Name.PascalCase() %} id=", id, " deleted")
+        log.Println("{%v config.Database.Table.Name.PascalCase() %} id", id, "deleted")
         w.WriteHeader(http.StatusNoContent)
     }
 }

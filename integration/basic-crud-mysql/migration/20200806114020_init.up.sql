@@ -1,9 +1,9 @@
 CREATE TABLE Student
 (
-    id        bigserial   not null primary key,
-    name      varchar(24) not null,
-    birthday  date        not null,
-    school_id bigint      not null
+    id        bigint auto_increment not null primary key,
+    name      varchar(24)           not null,
+    birthday  date                  not null,
+    school_id bigint                not null
 );
 
 -- some fake data
