@@ -10,7 +10,6 @@ import (
 type CICDGenerator struct{}
 
 func renderKubernetesDeployment(config config.Config, dirPath string) error {
-
 	kubernetesDeployment := cicd.KubernetesFile(config)
 	kubernetesDeploymentFile, err := os.Create(filepath.Join(dirPath, config.Database.Table.Name.KebabCase()+".yaml"))
 	if err != nil {
@@ -41,7 +40,6 @@ func renderGitHubActions(config config.Config, dirPath string) error {
 }
 
 func (generator CICDGenerator) Generate(config config.Config, dirPath string) error {
-	// todo: See #33
 	if config.CICD.K8s == nil || *config.CICD.K8s {
 		err := renderKubernetesDeployment(config, dirPath)
 		if err != nil {

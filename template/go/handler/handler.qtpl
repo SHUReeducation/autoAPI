@@ -1,4 +1,5 @@
 {% import "autoAPI/config" %}
+{% import typeTransformer "autoAPI/generator/apiGenerator/golang/typeTransformer" %}
 
 {% func Handler(config config.Config) %}
 package handler
@@ -34,12 +35,16 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 
 func GetHandler(w http.ResponseWriter, r *http.Request) {
     w.Header().Add("Content-Type", "application/json")
+    {%- if typeTransformer.TypeTransformer.Transform(config.Database.Table.PrimaryKeyType()) == "int64" -%}
     idStr := mux.Vars(r)["id"]
     id, err := strconv.ParseInt(idStr, 10, 64)
     if err != nil {
         w.WriteHeader(http.StatusBadRequest)
         return
     }
+    {%- else -%}
+    id := mux.Vars(r)["id"]
+    {%- endif -%}
     object, err := model.Get(id)
     if err != nil {
         w.WriteHeader(http.StatusNotFound)
@@ -54,7 +59,7 @@ func ScanHandler(w http.ResponseWriter, r *http.Request) {
     limitStr := r.URL.Query().Get("limit")
     limit, err := strconv.ParseUint(limitStr, 10, 64)
     if err != nil {
-        log.Println(err)
+        log.Println("Scan {%v config.Database.Table.Name.PascalCase() %} failed:", err)
         w.WriteHeader(http.StatusBadRequest)
         _, _ = w.Write([]byte(err.Error()))
         return
@@ -62,14 +67,14 @@ func ScanHandler(w http.ResponseWriter, r *http.Request) {
     offsetStr := r.URL.Query().Get("offset")
     offset, err := strconv.ParseUint(offsetStr, 10, 64)
     if err != nil {
-        log.Println(err)
+        log.Println("Scan {%v config.Database.Table.Name.PascalCase() %} failed:", err)
         w.WriteHeader(http.StatusBadRequest)
         _, _ = w.Write([]byte(err.Error()))
         return
     }
     result, err := model.Scan(offset, limit)
     if err != nil {
-        log.Println(err)
+        log.Println("Scan {%v config.Database.Table.Name.PascalCase() %} failed:", err)
         w.WriteHeader(http.StatusInternalServerError)
         _, _ = w.Write([]byte(err.Error()))
         return
@@ -90,9 +95,9 @@ func PutHandler(w http.ResponseWriter, r *http.Request) {
     _ = json.Unmarshal(body, &toUpdate)
     result, err := model.Put(toUpdate)
     if err != nil {
-        log.Println("Update {%v config.Database.Table.Name.CamelCase() %} failed")
-        _, _ = w.Write([]byte(err.Error()))
+        log.Println("Update {%v config.Database.Table.Name.CamelCase() %} failed", err)
         w.WriteHeader(http.StatusInternalServerError)
+        _, _ = w.Write([]byte(err.Error()))
         return
     } else {
         log.Println("{%v config.Database.Table.Name.PascalCase() %}", toUpdate, "updated")
@@ -104,6 +109,7 @@ func PutHandler(w http.ResponseWriter, r *http.Request) {
 
 func DeleteHandler(w http.ResponseWriter, r *http.Request) {
     w.Header().Add("Content-Type", "application/json")
+    {%- if typeTransformer.TypeTransformer.Transform(config.Database.Table.PrimaryKeyType()) == "int64" -%}
     idStr := mux.Vars(r)["id"]
     id, err := strconv.ParseInt(idStr, 10, 64)
     if err != nil {
@@ -111,10 +117,14 @@ func DeleteHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
     err = model.Delete(id)
+    {%- else -%}
+    id := mux.Vars(r)["id"]
+    err := model.Delete(id)
+    {%- endif -%}
     if err != nil {
-        log.Println("Delete {%v config.Database.Table.Name.CamelCase() %} failed")
-        _, _ = w.Write([]byte(err.Error()))
+        log.Println("Delete {%v config.Database.Table.Name.CamelCase() %} failed", err)
         w.WriteHeader(http.StatusInternalServerError)
+        _, _ = w.Write([]byte(err.Error()))
         return
     } else {
         log.Println("{%v config.Database.Table.Name.PascalCase() %} id", id, "deleted")

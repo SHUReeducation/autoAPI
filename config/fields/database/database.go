@@ -43,6 +43,7 @@ func (database *Database) MergeWithDefault() error {
 		t := "pgsql"
 		database.DBEngine = &t
 	}
+	database.Table.MergeWithDefault()
 	return nil
 }
 

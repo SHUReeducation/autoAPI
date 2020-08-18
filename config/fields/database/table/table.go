@@ -75,3 +75,24 @@ func (table *Table) MergeWithDB(url string, dbEngine string) error {
 	}
 	return nil
 }
+
+func (table *Table) MergeWithDefault() {
+	for _, f := range table.Fields {
+		if f.Name.CamelCase() == "id" {
+			return
+		}
+	}
+	table.Fields = append(
+		[]field.Field{{Name: withCase.New("id"), Type: "bigserial"}},
+		table.Fields...,
+	)
+}
+
+func (table *Table) PrimaryKeyType() string {
+	for _, f := range table.Fields {
+		if f.Name.CamelCase() == "id" {
+			return f.Type
+		}
+	}
+	return ""
+}

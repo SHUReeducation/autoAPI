@@ -1,0 +1,11 @@
+database:
+  tablename: student
+  fields:
+    - name: id
+      type: varchar(8)
+    - name: name
+      type: varchar(24)
+    - name: birthday
+      type: date
+    - name: school_id
+      type: int
