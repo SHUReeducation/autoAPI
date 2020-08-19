@@ -21,9 +21,9 @@ jobs:
       with:
         body: ${{ github.event.head_commit.message }}
         files: |
-          autoAPI-windows-amd64.exe
-          autoAPI-linux-amd64
-          autoAPI-darwin-amd64
+          autoAPI-windows-amd64.zip
+          autoAPI-linux-amd64.zip
+          autoAPI-darwin-amd64.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
