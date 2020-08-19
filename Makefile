@@ -12,6 +12,9 @@ clean:
 	rm -rf ./autoAPI
 
 build-release: generate
-	GOOS=windows GOARCH=amd64 go build -o autoAPI-windows-amd64.exe
-	GOOS=darwin GOARCH=amd64 go build -o autoAPI-darwin-amd64
-	GOOS=linux GOARCH=amd64 go build -o autoAPI-linux-amd64
+	GOOS=windows GOARCH=amd64 go build -o autoAPI.exe
+	zip autoAPI-windows-amd64.zip autoAPI.exe
+	GOOS=darwin GOARCH=amd64 go build -o autoAPI
+	zip autoAPI-darwin-amd64.zip autoAPI
+	GOOS=linux GOARCH=amd64 go build -o autoAPI
+	zip autoAPI-linux-amd64.zip autoAPI
