@@ -12,22 +12,23 @@ import (
 )
 
 type {%v config.Database.Table.Name.PascalCase() %} struct {
-    Id int64 `json:"id"`
     {% for _, field := range config.Database.Table.Fields %}{%v field.Name.PascalCase() %} {%s typeTransformer.TypeTransformer.Transform(field.Type) %} `json:"{%v field.Name.SnakeCase() %}"`
     {% endfor %}
 }
 
 func Create(object {%v config.Database.Table.Name.PascalCase() %}) ({%v config.Database.Table.Name.PascalCase() %}, error) {
-    ret, err := infrastructure.DB.Exec(`
+    {% if typeTransformer.TypeTransformer.Transform(config.Database.Table.PrimaryKeyType()) == "int64" %}ret{% else %}_{% endif %}, err := infrastructure.DB.Exec(`
     INSERT INTO {%v config.Database.Table.Name.PascalCase() %}({% for i, field := range config.Database.Table.Fields %}{%v field.Name.SnakeCase() %}{% if i + 1 < len(config.Database.Table.Fields) %}, {% endif %}{% endfor %})
     VALUES ({% for i := range config.Database.Table.Fields %}(?){% if i + 1 < len(config.Database.Table.Fields) %}, {% endif %}{% endfor %})`, {% for i, field := range config.Database.Table.Fields %}object.{%v field.Name.PascalCase() %}{% if i + 1 < len(config.Database.Table.Fields) %}, {% endif %}{% endfor %})
+    {% if typeTransformer.TypeTransformer.Transform(config.Database.Table.PrimaryKeyType()) == "int64" %}
     if ret != nil {
         object.Id, _ = ret.LastInsertId()
     }
+    {% endif %}
     return object, err
 }
 
-func Get(id int64) ({%v config.Database.Table.Name.PascalCase() %}, error) {
+func Get(id {%s typeTransformer.TypeTransformer.Transform(config.Database.Table.PrimaryKeyType()) %}) ({%v config.Database.Table.Name.PascalCase() %}, error) {
     row := infrastructure.DB.QueryRow(`
 		SELECT {% for i, field := range config.Database.Table.Fields %}{%v field.Name.SnakeCase() %}{% if i + 1 < len(config.Database.Table.Fields) %}, {% endif %}{% endfor %}
 		FROM {%v config.Database.Table.Name.PascalCase() %} WHERE id=(?);`, id)
@@ -57,20 +58,23 @@ func Scan(offset uint64, limit uint64) ([]{%v config.Database.Table.Name.PascalC
 }
 
 func Put(object {%v config.Database.Table.Name.PascalCase() %}) ({%v config.Database.Table.Name.PascalCase() %}, error) {
-    row := infrastructure.DB.QueryRow(`
+    _, err := infrastructure.DB.Exec(`
         UPDATE {%v config.Database.Table.Name.PascalCase() %}
         SET {% for i, field := range config.Database.Table.Fields %}{%v field.Name.SnakeCase() %}=(?){% if i + 1 < len(config.Database.Table.Fields) %}, {% endif %}{% endfor %}
         WHERE id=(?)
-        `, {% for i, field := range config.Database.Table.Fields %}object.{%v field.Name.PascalCase() %}{% if i + 1 < len(config.Database.Table.Fields) %}, {% endif %}{% endfor %}, object.Id)
-    row = infrastructure.DB.QueryRow(`
-            SELECT id{% for _, field := range config.Database.Table.Fields %}, {%v field.Name.SnakeCase() %}{% endfor %}
-            FROM {%v config.Database.Table.Name.PascalCase() %} WHERE id=(?)
+        `, {% for _, field := range config.Database.Table.Fields %}object.{%v field.Name.PascalCase() %}, {% endfor %}object.Id)
+    if err != nil {
+        return object, err
+    }
+    row := infrastructure.DB.QueryRow(`
+            SELECT {% for i, field := range config.Database.Table.Fields %}{%v field.Name.SnakeCase() %}{% if i + 1 < len(config.Database.Table.Fields) %}, {% endif %}{% endfor %}
+            FROM {%v config.Database.Table.Name.PascalCase() %} WHERE id=(?);
             `, object.Id)
-    err := row.Scan(&object.Id, {% for i, field := range config.Database.Table.Fields %}&object.{%v field.Name.PascalCase() %}{% if i + 1 < len(config.Database.Table.Fields) %}, {% endif %}{% endfor %})
+    err = row.Scan({% for i, field := range config.Database.Table.Fields %}&object.{%v field.Name.PascalCase() %}{% if i + 1 < len(config.Database.Table.Fields) %}, {% endif %}{% endfor %})
     return object, err
 }
 
-func Delete(id int64) error {
+func Delete(id {%s typeTransformer.TypeTransformer.Transform(config.Database.Table.PrimaryKeyType()) %}) error {
     _, err := infrastructure.DB.Exec(`
         DELETE FROM {%v config.Database.Table.Name.PascalCase() %} WHERE id=(?);
         `, id)

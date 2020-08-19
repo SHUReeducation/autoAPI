@@ -93,3 +93,74 @@ jobs:
         run: python3 ./integration/basic-crud-mysql/run.py
         env:
           DB_ADDRESS: user:password@tcp(localhost:3306)/database?allowCleartextPasswords=true&allowNativePasswords=true&parseTime=true
+  non_interger_pk:
+    needs: basic_crud
+    runs-on: ubuntu-latest
+    name: Run basic crud when id is not an integer
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: 1.14
+      - name: Init database
+        uses: docker://migrate/migrate
+        with:
+          args:
+            -database "postgres://postgres:postgres@postgres:5432/postgres?sslmode=disable" -path integration/non-integer-primarykey/migration up
+      - name: Build
+        run: make build
+      - name: Run the test case
+        run: python3 ./integration/non-integer-primarykey/run.py
+        env:
+          DB_ADDRESS: "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable"
+  non_interger_pk_mysql:
+    needs: basic_crud_mysql
+    runs-on: ubuntu-latest
+    name: Run basic crud when id is not an integer for mysql
+    services:
+      mysql:
+        image: mysql
+        env:
+          MYSQL_ROOT_PASSWORD: mysql
+          MYSQL_DATABASE: database
+          MYSQL_USER: user
+          MYSQL_PASSWORD: password
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=15s
+          --health-timeout=5s
+          --health-retries=5
+        ports:
+          - 3306:3306
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: 1.14
+      - name: Init database
+        uses: docker://migrate/migrate
+        with:
+          args:
+            -database "mysql://user:password@tcp(mysql:3306)/database" -path integration/non-integer-primarykey-mysql/migration up
+      - name: Build
+        run: make build
+      - name: Run the test case
+        run: python3 ./integration/non-integer-primarykey-mysql/run.py
+        env:
+          DB_ADDRESS: user:password@tcp(localhost:3306)/database?allowCleartextPasswords=true&allowNativePasswords=true&parseTime=true
