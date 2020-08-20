@@ -2,7 +2,7 @@
 
 ![Logo](https://i.ibb.co/vL1N1t1/logo.png)
 
-![Integration test](https://github.com/SHUReeducation/autoAPI/workflows/Run%20integration%20test/badge.svg)
+![Integration test](https://github.com/SHUReeducation/autoAPI/workflows/Integration%20test/badge.svg)
 
 Create an CRUD API server directly from a table in database or a yaml file.
 
