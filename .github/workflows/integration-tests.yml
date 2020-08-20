@@ -1,4 +1,4 @@
-name: Run integration test
+name: Integration test
 
 on:
   push:
@@ -50,11 +50,11 @@ jobs:
         uses: docker://migrate/migrate
         with:
           args:
-            -database "postgres://postgres:postgres@postgres:5432/postgres?sslmode=disable" -path integration/basic-crud/migration up
+            -database "postgres://postgres:postgres@postgres:5432/postgres?sslmode=disable" -path integration/basic-crud/migration/postgres up
       - name: Build
         run: make build
       - name: Run the test case
-        run: python3 ./integration/basic-crud/run.py
+        run: python3 ./integration/basic-crud/test.py ./integration/basic-crud/golang/postgres.yml
         env:
           DB_ADDRESS: "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable"
   basic_crud_mysql:
@@ -86,11 +86,11 @@ jobs:
         uses: docker://migrate/migrate
         with:
           args:
-            -database "mysql://user:password@tcp(mysql:3306)/database" -path integration/basic-crud-mysql/migration up
+            -database "mysql://user:password@tcp(mysql:3306)/database" -path integration/basic-crud/migration/mysql up
       - name: Build
         run: make build
       - name: Run the test case
-        run: python3 ./integration/basic-crud-mysql/run.py
+        run: python3 ./integration/basic-crud/test.py ./integration/basic-crud/golang/mysql.yml
         env:
           DB_ADDRESS: user:password@tcp(localhost:3306)/database?allowCleartextPasswords=true&allowNativePasswords=true&parseTime=true
   non_interger_pk:
@@ -121,11 +121,11 @@ jobs:
         uses: docker://migrate/migrate
         with:
           args:
-            -database "postgres://postgres:postgres@postgres:5432/postgres?sslmode=disable" -path integration/non-integer-primarykey/migration up
+            -database "postgres://postgres:postgres@postgres:5432/postgres?sslmode=disable" -path integration/non-integer-pk/migration/postgres up
       - name: Build
         run: make build
       - name: Run the test case
-        run: python3 ./integration/non-integer-primarykey/run.py
+        run: python3 ./integration/non-integer-pk/test.py ./integration/non-integer-pk/golang/postgres.yml
         env:
           DB_ADDRESS: "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable"
   non_interger_pk_mysql:
@@ -157,10 +157,10 @@ jobs:
         uses: docker://migrate/migrate
         with:
           args:
-            -database "mysql://user:password@tcp(mysql:3306)/database" -path integration/non-integer-primarykey-mysql/migration up
+            -database "mysql://user:password@tcp(mysql:3306)/database" -path integration/non-integer-pk/migration/mysql up
       - name: Build
         run: make build
       - name: Run the test case
-        run: python3 ./integration/non-integer-primarykey-mysql/run.py
+        run: python3 ./integration/non-integer-pk/test.py ./integration/non-integer-pk/golang/mysql.yml
         env:
           DB_ADDRESS: user:password@tcp(localhost:3306)/database?allowCleartextPasswords=true&allowNativePasswords=true&parseTime=true
