@@ -1,16 +1,19 @@
 import json
 import subprocess
+import sys
 import unittest
 import urllib
 import urllib.error
 import urllib.request
 
 
-class BasicCRUDTest(unittest.TestCase):
+class NonIntegerPKTest(unittest.TestCase):
+    api_path = ""
+
     @classmethod
     def setUpClass(cls):
         subprocess.run(
-            'bash ./integration/utils/start-server.sh ./integration/non-integer-primarykey/api.yml'.split(' '))
+            'bash ./integration/utils/start-server.sh {}'.format(cls.api_path).split(' '))
 
     def test_get(self):
         response = urllib.request.urlopen('http://localhost:8000/students/20000101').read().decode('utf-8')
@@ -48,7 +51,8 @@ class BasicCRUDTest(unittest.TestCase):
 
         new_info = {'id': '20000101', 'name': 'F', 'birthday': '1990-06-06T00:00:00Z', 'school_id': 6}
         data = json.dumps(new_info)
-        request = urllib.request.Request(url='http://localhost:8000/students/20000101', data=data.encode(encoding='utf-8'),
+        request = urllib.request.Request(url='http://localhost:8000/students/20000101',
+                                         data=data.encode(encoding='utf-8'),
                                          method='PUT')
         urllib.request.urlopen(request)
         response = urllib.request.urlopen('http://localhost:8000/students/20000101').read().decode('utf-8')
@@ -75,6 +79,7 @@ class BasicCRUDTest(unittest.TestCase):
 
 
 if __name__ == '__main__':
+    NonIntegerPKTest.api_path = sys.argv[1]
     loader = unittest.TestLoader()
     loader.sortTestMethodsUsing = None
-    unittest.main(testLoader=loader)
+    unittest.main(argv=[sys.argv[0]], testLoader=loader)
