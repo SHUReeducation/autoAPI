@@ -164,3 +164,31 @@ jobs:
         run: python3 ./integration/non-integer-pk/test.py ./integration/non-integer-pk/golang/mysql.yml
         env:
           DB_ADDRESS: user:password@tcp(localhost:3306)/database?allowCleartextPasswords=true&allowNativePasswords=true&parseTime=true
+  docker:
+    needs: smoke_test
+    runs-on: ubuntu-latest
+    name: Run generating docker test
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: 1.14
+      - name: Build
+        run: make build
+      - name: Run the test case
+        run: python3 ./integration/docker/test.py
+  cicd:
+    needs: smoke_test
+    runs-on: ubuntu-latest
+    name: Run generating cicd test
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: 1.14
+      - name: Build
+        run: make build
+      - name: Run the test case
+        run: python3 ./integration/cicd/test.py

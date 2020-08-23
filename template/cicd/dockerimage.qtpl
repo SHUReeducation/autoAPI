@@ -12,7 +12,7 @@ jobs:
       - name: Build the Docker image
         run: |
           docker build . -t {%v config.Database.Table.Name.KebabCase() %}
-          docker tag {%v config.Database.Table.Name.KebabCase() %} {%v config.Docker.Username %}/{%v config.Database.Table.Name.KebabCase() %}:{%v config.Docker.Tag %}
-          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login --username "{%v config.Docker.Username %}" --password-stdin
-          docker push {%v config.Docker.Username %}/{%v config.Database.Table.Name.KebabCase() %}:{%v config.Docker.Tag %}
+          docker tag {%v config.Database.Table.Name.KebabCase() %} {%v *config.Docker.Username %}/{%v config.Database.Table.Name.KebabCase() %}:{%v *config.Docker.Tag %}
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login --username "{%v *config.Docker.Username %}" --password-stdin
+          docker push {%v *config.Docker.Username %}/{%v config.Database.Table.Name.KebabCase() %}:{%v *config.Docker.Tag %}
 {% endfunc %}
