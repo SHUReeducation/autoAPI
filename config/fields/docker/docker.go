@@ -23,12 +23,16 @@ func (docker *Docker) MergeWith(other *Docker) {
 }
 
 func (docker *Docker) MergeWithEnv() error {
-	if os.Getenv("DOCKER_USERNAME") != "" {
+	if docker.Username == nil && os.Getenv("DOCKER_USERNAME") != "" {
 		username := os.Getenv("DOCKER_USERNAME")
 		docker.Username = &username
 	}
-	if os.Getenv("DOCKER_TAG") != "" {
+	if docker.Tag == nil && os.Getenv("DOCKER_TAG") != "" {
 		tag := os.Getenv("DOCKER_TAG")
+		docker.Tag = &tag
+	}
+	if docker.Tag == nil && os.Getenv("GITHUB_RUN_NUMBER") != "" {
+		tag := "ci-v" + os.Getenv("GITHUB_RUN_NUMBER")
 		docker.Tag = &tag
 	}
 	return nil
@@ -42,7 +46,7 @@ func FromCommandLine(c *cli.Context) (*Docker, error) {
 	if tag := c.String("dockertag"); tag != "" {
 		result.Tag = &tag
 	}
-	if result.Username == nil && result.Tag == nil {
+	if c.Bool("nodocker") {
 		return nil, nil
 	}
 	return &result, nil

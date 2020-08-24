@@ -8,20 +8,20 @@ import (
 	"autoAPI/generator/apiGenerator/golang"
 	"autoAPI/generator/cicdGenerator"
 	"errors"
+	"fmt"
 	"github.com/urfave/cli/v2"
-	"log"
 	"os"
 )
 
 func main() {
 	err := (&cli.App{
 		Flags: []cli.Flag{
-			&cli.StringFlag{
+			&cli.PathFlag{
 				Name:    "file",
 				Aliases: []string{"f"},
 				Usage:   "Load configuration from `FILE`",
 			},
-			&cli.StringFlag{
+			&cli.PathFlag{
 				Name:     "output",
 				Aliases:  []string{"o"},
 				Usage:    "Put the output code in `PATH`",
@@ -31,6 +31,31 @@ func main() {
 				Name:  "force",
 				Value: false,
 				Usage: "If the output PATH dir exists, use '--force' to overwrite it",
+			},
+			&cli.StringFlag{
+				Name:     "dockerusername",
+				Aliases:  []string{"du"},
+				Usage:    "Your DockerHub's username",
+				Required: false,
+			},
+			&cli.StringFlag{
+				Name:     "dockertag",
+				Aliases:  []string{"dt"},
+				Usage:    "Tag of the generated docker image",
+				Required: false,
+			},
+			&cli.BoolFlag{
+				Name:     "nodocker",
+				Aliases:  []string{"nd"},
+				Usage:    "Force not generating docker",
+				Required: false,
+				Value:    false,
+			},
+			&cli.StringFlag{
+				Name:     "dbengine",
+				Aliases:  []string{"dbms"},
+				Usage:    "The dbengine you want use",
+				Required: false,
 			},
 		},
 		Name:  "autoAPI",
@@ -89,6 +114,6 @@ func main() {
 		},
 	}).Run(os.Args)
 	if err != nil {
-		log.Fatal(err)
+		_ = fmt.Errorf("%s", err.Error())
 	}
 }

@@ -1,5 +1,7 @@
 package cicd
 
+import "github.com/urfave/cli/v2"
+
 type CICD struct {
 	GithubAction *bool `yaml:"GitHubAction" json:"GitHubAction"`
 	K8s          *bool `yaml:"k8s" json:"k8s"`
@@ -26,4 +28,13 @@ func (cicd *CICD) MergeWith(other *CICD) {
 	if cicd.K8s == nil {
 		cicd.K8s = other.K8s
 	}
+}
+
+func FromCommandLine(c *cli.Context) (*CICD, error) {
+	t := true
+	f := false
+	return &CICD{
+		GithubAction: &t,
+		K8s:          &f,
+	}, nil
 }
