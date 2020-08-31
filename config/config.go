@@ -126,7 +126,7 @@ func (c *Config) MergeWith(other *Config) {
 }
 
 func (c *Config) Validate() error {
-	if (c.CICD != nil && c.CICD.K8s == nil && c.CICD.GithubAction == nil) || (c.Docker == nil || c.Docker.Username == nil && c.Docker.Tag == nil) {
+	if (c.CICD != nil && c.CICD.K8s == nil && c.CICD.GithubAction == nil) || (c.Docker == nil || c.Docker.Username == nil || c.Docker.Tag == nil) {
 		c.CICD = nil
 	}
 	err := c.Database.Validate()
