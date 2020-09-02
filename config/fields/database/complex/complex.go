@@ -7,21 +7,21 @@ import (
 )
 
 type QueryResult struct {
-	Array  bool          `yaml:"array" json:"array"`
-	Fields []field.Field `yaml:"fields" json:"fields"`
+	Array  bool          `yaml:"array" json:"array" toml:"array"`
+	Fields []field.Field `yaml:"fields" json:"fields" toml:"fields"`
 }
 
 type QueryParam struct {
-	OnThis *withCase.WithCase `yaml:"onThis,omitempty" json:"onThis,omitempty"`
-	Name   *withCase.WithCase `yaml:"name,omitempty" json:"name,omitempty"`
-	Type   string             `yaml:"type" json:"type"`
+	OnThis *withCase.WithCase `yaml:"onThis,omitempty" json:"onThis,omitempty" toml:"onThis,omitempty"`
+	Name   *withCase.WithCase `yaml:"name,omitempty" json:"name,omitempty" toml:"name,omitempty"`
+	Type   string             `yaml:"type" json:"type" toml:"type"`
 }
 
 type Complex struct {
-	Name   withCase.WithCase `yaml:"name" json:"name"`
-	SQL    string            `yaml:"sql" json:"sql"`
-	Params []QueryParam      `yaml:"params" json:"params"`
-	Result QueryResult       `yaml:"result" json:"result"`
+	Name   withCase.WithCase `yaml:"name" json:"name" toml:"name"`
+	SQL    string            `yaml:"sql" json:"sql" toml:"sql"`
+	Params []QueryParam      `yaml:"params" json:"params" toml:"params"`
+	Result QueryResult       `yaml:"result" json:"result" toml:"result"`
 }
 
 func (complex *Complex) Validate() error {

@@ -6,8 +6,8 @@ import (
 )
 
 type Docker struct {
-	Username *string `yaml:"username" json:"username"`
-	Tag      *string `yaml:"tag" json:"tag"`
+	Username *string `yaml:"username" json:"username" toml:"username"`
+	Tag      *string `yaml:"tag" json:"tag" toml:"tag"`
 }
 
 func (docker *Docker) MergeWith(other *Docker) {

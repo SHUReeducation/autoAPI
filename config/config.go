@@ -6,6 +6,7 @@ import (
 	"autoAPI/config/fields/docker"
 	"encoding/json"
 	"errors"
+	"github.com/pelletier/go-toml"
 	"github.com/urfave/cli/v2"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
@@ -15,9 +16,9 @@ import (
 )
 
 type Config struct {
-	Docker   *docker.Docker     `yaml:"docker" json:"docker"`
-	CICD     *cicd.CICD         `yaml:"cicd" json:"cicd"`
-	Database *database.Database `yaml:"database" json:"database"`
+	Docker   *docker.Docker     `yaml:"docker" json:"docker" toml:"docker"`
+	CICD     *cicd.CICD         `yaml:"cicd" json:"cicd" toml:"cicd"`
+	Database *database.Database `yaml:"database" json:"database" toml:"database"`
 }
 
 func FromCommandLine(c *cli.Context) (*Config, error) {
@@ -88,6 +89,15 @@ func FromJson(data []byte) (*Config, error) {
 	return &result, err
 }
 
+// FromToml scan to config from toml format content
+func FromToml(data []byte) (*Config, error) {
+	var result Config
+	err := toml.Unmarshal(data, &result)
+	return &result, err
+}
+
+// FromConfigFile scan to config from file content
+// only support json/yml/yaml and toml now
 func FromConfigFile(path string) (*Config, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -102,8 +112,10 @@ func FromConfigFile(path string) (*Config, error) {
 		return FromJson(content)
 	case ".yaml", ".yml":
 		return FromYaml(content)
+	case ".toml":
+		return FromToml(content)
 	default:
-		return nil, errors.New("only support json or yaml now")
+		return nil, errors.New("only support json/yml/yaml and toml now")
 	}
 }
 
