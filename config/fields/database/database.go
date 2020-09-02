@@ -9,9 +9,9 @@ import (
 )
 
 type Database struct {
-	DBEngine *string      `yaml:"dbengine" json:"dbengine"`
-	Url      *string      `yaml:"url" json:"url"`
-	Table    *table.Table `yaml:",inline" json:",inline"`
+	DBEngine *string      `yaml:"dbengine" json:"dbengine" toml:"dbengine"`
+	Url      *string      `yaml:"url" json:"url" toml:"url"`
+	Table    *table.Table `yaml:",inline" json:",inline" toml:",inline"`
 }
 
 var Default = Database{}

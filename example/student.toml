@@ -1,0 +1,57 @@
+[docker]
+username = 'zhoudian64'
+tag = '0.0.1'
+
+[cicd]
+GitHubAction = true
+k8s = true
+
+[database]
+dbengine = 'pgsql'
+url = 'postgresql://localhost:5432/postgres?sslmode=disable'
+
+[database.table]
+tablename = 'student'
+
+[[database.table.fields]]
+name = 'name'
+type = 'varchar(24)'
+
+[[database.table.fields]]
+name = 'birthday'
+type = 'date'
+
+[[database.table.fields]]
+name = 'school_id'
+type = 'int'
+
+[[database.table.complex]]
+name = 'schools'
+sql = 'SELECT school.id, name, place FROM school, school_student, school_date WHERE school_student.student_id = $1 AND school_date.start_date >= $2 AND school_date.end_date <= $3 AND school_student.school_id = school.id'
+
+[[database.table.complex.params]]
+onThis = 'id'
+type = 'int'
+
+[[database.table.complex.params]]
+name = 'start_date'
+type = 'varchar(24)'
+
+[[database.table.complex.params]]
+name = 'end_date'
+type = 'varchar(24)'
+
+[database.table.complex.result]
+array = true
+
+[[database.table.complex.result.fields]]
+name = 'id'
+type = 'bigserial'
+
+[[database.table.complex.result.fields]]
+name = 'name'
+type = 'varchar(24)'
+
+[[database.table.complex.result.fields]]
+name = 'place'
+type = 'varchar(128)'

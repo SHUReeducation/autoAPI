@@ -11,9 +11,9 @@ import (
 )
 
 type Table struct {
-	Name    *withCase.WithCase `yaml:"tablename" json:"tablename"`
-	Fields  []field.Field      `yaml:"fields" json:"fields"`
-	Complex []complex.Complex  `yaml:"complex" json:"complex"`
+	Name    *withCase.WithCase `yaml:"tablename" json:"tablename" toml:"tablename"`
+	Fields  []field.Field      `yaml:"fields" json:"fields" toml:"fields"`
+	Complex []complex.Complex  `yaml:"complex" json:"complex" toml:"complex"`
 }
 
 func (table *Table) MergeWith(other *Table) {

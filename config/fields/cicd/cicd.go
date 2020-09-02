@@ -3,8 +3,8 @@ package cicd
 import "github.com/urfave/cli/v2"
 
 type CICD struct {
-	GithubAction *bool `yaml:"GitHubAction" json:"GitHubAction"`
-	K8s          *bool `yaml:"k8s" json:"k8s"`
+	GithubAction *bool `yaml:"GitHubAction" json:"GitHubAction" toml:"GitHubAction"`
+	K8s          *bool `yaml:"k8s" json:"k8s" toml:"k8s"`
 }
 
 func (cicd *CICD) MergeWithDefault() error {
