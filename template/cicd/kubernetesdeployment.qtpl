@@ -18,7 +18,7 @@ spec:
             - containerPort: 8000
           env:
             - name: DB_ADDRESS
-              value: "{%v *config.Database.Url %}"
+              value: "{%v *config.Database.URL %}"
 ---
 apiVersion: v1
 kind: Service

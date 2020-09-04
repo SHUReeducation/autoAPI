@@ -1,16 +1,18 @@
 package pgsql
 
 import (
-	"autoAPI/config/fields/database/field"
-	"autoAPI/utility/withCase"
 	"database/sql"
-	_ "github.com/lib/pq"
+
+	"autoAPI/config/fields/database/field"
+	"autoAPI/utility/withcase"
+
+	_ "github.com/lib/pq" // db driver
 )
 
 type dbAdapter struct {
 }
 
-func (_ dbAdapter) GetFields(url string, tableName withCase.WithCase) ([]field.Field, error) {
+func (dbAdapter) GetFields(url string, tableName withcase.WithCase) ([]field.Field, error) {
 	db, err := sql.Open("postgres", url)
 	if err != nil {
 		return nil, err
@@ -32,7 +34,7 @@ func (_ dbAdapter) GetFields(url string, tableName withCase.WithCase) ([]field.F
 		if err != nil {
 			return result, err
 		}
-		current.Name = withCase.New(nameStr)
+		current.Name = withcase.New(nameStr)
 		current.Type = columnTypeStr
 		if current.Name.CamelCase() != "id" {
 			result = append(result, current)

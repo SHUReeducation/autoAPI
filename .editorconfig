@@ -1,0 +1,31 @@
+# See: http://editorconfig.org
+root = true
+
+[*]
+# 编码格式
+charset                  = utf-8
+# 换行符类型 "lf" | "cr" | "crlf"
+end_of_line              = lf
+# 是否让文件以空行结束
+insert_final_newline     = true
+# 是否删除行尾空格
+trim_trailing_whitespace = true
+
+[*.go]
+indent_size  = 4
+indent_style = tab
+
+[*.json]
+indent_size  = 4
+indent_style = space
+
+[*.yml]
+indent_style = space
+indent_size  = 2
+
+[Makefile]
+indent_style = tab
+
+[*.md]
+indent_style             = space
+trim_trailing_whitespace = false

@@ -1,18 +1,20 @@
 package config
 
 import (
-	"autoAPI/config/fields/cicd"
-	"autoAPI/config/fields/database"
-	"autoAPI/config/fields/docker"
 	"encoding/json"
 	"errors"
-	"github.com/pelletier/go-toml"
-	"github.com/urfave/cli/v2"
-	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/BurntSushi/toml"
+	"github.com/urfave/cli/v2"
+	"gopkg.in/yaml.v3"
+
+	"autoAPI/config/fields/cicd"
+	"autoAPI/config/fields/database"
+	"autoAPI/config/fields/docker"
 )
 
 type Config struct {
@@ -83,7 +85,7 @@ func FromYaml(data []byte) (*Config, error) {
 	return &result, err
 }
 
-func FromJson(data []byte) (*Config, error) {
+func FromJSON(data []byte) (*Config, error) {
 	var result Config
 	err := json.Unmarshal(data, &result)
 	return &result, err
@@ -109,7 +111,7 @@ func FromConfigFile(path string) (*Config, error) {
 	}
 	switch ext := strings.ToLower(filepath.Ext(path)); ext {
 	case ".json":
-		return FromJson(content)
+		return FromJSON(content)
 	case ".yaml", ".yml":
 		return FromYaml(content)
 	case ".toml":

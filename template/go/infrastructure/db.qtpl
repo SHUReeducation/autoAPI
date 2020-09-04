@@ -4,7 +4,7 @@ package infrastructure
 
 import (
 	"database/sql"
-	_ "{%v config.Database.GetDBEngineModUrl() %}"
+	_ "{%v config.Database.GetDBEngineModURL() %}"
 	"os"
 )
 

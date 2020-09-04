@@ -1,5 +1,5 @@
 {% import "autoAPI/config" %}
-{% import typeTransformer "autoAPI/generator/apiGenerator/golang/typeTransformer" %}
+{% import typeTransformer "autoAPI/generator/apigenerator/golang/typetransformer" %}
 
 {% func Handler(config config.Config) %}
 package handler

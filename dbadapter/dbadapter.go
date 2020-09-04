@@ -1,14 +1,15 @@
-package dbAdapter
+package dbadapter
 
 import (
-	"autoAPI/config/fields/database/field"
-	"autoAPI/dbAdapter/pgsql"
-	"autoAPI/utility/withCase"
 	"errors"
+
+	"autoAPI/config/fields/database/field"
+	"autoAPI/dbadapter/pgsql"
+	"autoAPI/utility/withcase"
 )
 
 type DBAdapter interface {
-	GetFields(url string, tableName withCase.WithCase) ([]field.Field, error)
+	GetFields(url string, tableName withcase.WithCase) ([]field.Field, error)
 	// todo: use this to support multiple databases when generating code
 	// RenderCreateSQL(config config.config) string
 	// RenderUpdateSQL(config config.config) string

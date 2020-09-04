@@ -1,4 +1,4 @@
-package golangTypeTransformer
+package typetransformer
 
 import "strings"
 
@@ -23,15 +23,17 @@ var transformMap = map[string]string{
 	"bytea":       "[]byte",
 }
 
-func (_ typeTransformer) Transform(dataBaseType string) string {
+func (typeTransformer) Transform(dataBaseType string) string {
 	result, contains := transformMap[dataBaseType]
-	if contains {
+
+	switch {
+	case contains:
 		return result
-	} else if strings.HasPrefix(dataBaseType, "char") || strings.HasPrefix(dataBaseType, "varchar") {
+	case strings.HasPrefix(dataBaseType, "char"), strings.HasPrefix(dataBaseType, "varchar"):
 		return "string"
-	} else {
-		return dataBaseType
 	}
+
+	return dataBaseType
 }
 
 var TypeTransformer typeTransformer

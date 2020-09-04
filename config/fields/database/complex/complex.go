@@ -1,9 +1,10 @@
 package complex
 
 import (
-	"autoAPI/config/fields/database/field"
-	"autoAPI/utility/withCase"
 	"errors"
+
+	"autoAPI/config/fields/database/field"
+	"autoAPI/utility/withcase"
 )
 
 type QueryResult struct {
@@ -12,13 +13,13 @@ type QueryResult struct {
 }
 
 type QueryParam struct {
-	OnThis *withCase.WithCase `yaml:"onThis,omitempty" json:"onThis,omitempty" toml:"onThis,omitempty"`
-	Name   *withCase.WithCase `yaml:"name,omitempty" json:"name,omitempty" toml:"name,omitempty"`
+	OnThis *withcase.WithCase `yaml:"onThis,omitempty" json:"onThis,omitempty" toml:"onThis,omitempty"`
+	Name   *withcase.WithCase `yaml:"name,omitempty" json:"name,omitempty" toml:"name,omitempty"`
 	Type   string             `yaml:"type" json:"type" toml:"type"`
 }
 
 type Complex struct {
-	Name   withCase.WithCase `yaml:"name" json:"name" toml:"name"`
+	Name   withcase.WithCase `yaml:"name" json:"name" toml:"name"`
 	SQL    string            `yaml:"sql" json:"sql" toml:"sql"`
 	Params []QueryParam      `yaml:"params" json:"params" toml:"params"`
 	Result QueryResult       `yaml:"result" json:"result" toml:"result"`
@@ -30,9 +31,9 @@ func (complex *Complex) Validate() error {
 		if param.OnThis != nil {
 			if alreadyMetOnThis {
 				return errors.New("only one OnThis can exist in a Complex")
-			} else {
-				alreadyMetOnThis = true
 			}
+
+			alreadyMetOnThis = true
 			if param.Name != nil {
 				return errors.New("one and only one of OnThis and Name must be exists")
 			}

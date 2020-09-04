@@ -1,9 +1,9 @@
-package golangImportGenerator
+package importgenerator
 
 import (
 	"autoAPI/config"
 	"autoAPI/config/fields/database/field"
-	typeTransformer "autoAPI/generator/apiGenerator/golang/typeTransformer"
+	"autoAPI/generator/apigenerator/golang/typetransformer"
 )
 
 type importGenerator struct{}
@@ -13,12 +13,12 @@ var importMap = map[string]string{
 }
 
 func importFor(f field.Field) *string {
-	result, contains := importMap[typeTransformer.TypeTransformer.Transform(f.Type)]
+	result, contains := importMap[typetransformer.TypeTransformer.Transform(f.Type)]
 	if contains {
 		return &result
-	} else {
-		return nil
 	}
+
+	return nil
 }
 
 func (i importGenerator) Generate(config config.Config) []string {

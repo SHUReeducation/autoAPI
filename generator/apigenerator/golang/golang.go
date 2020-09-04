@@ -1,6 +1,9 @@
 package golang
 
 import (
+	"os"
+	"path/filepath"
+
 	"autoAPI/config"
 	"autoAPI/template/go/dockerfile"
 	"autoAPI/template/go/goMod"
@@ -8,8 +11,6 @@ import (
 	"autoAPI/template/go/infrastructure"
 	"autoAPI/template/go/mainTemplate"
 	"autoAPI/template/go/model"
-	"os"
-	"path/filepath"
 )
 
 type APIGenerator struct{}

@@ -1,10 +1,11 @@
-package cicdGenerator
+package cicdgenerator
 
 import (
-	"autoAPI/config"
-	"autoAPI/template/cicd"
 	"os"
 	"path/filepath"
+
+	"autoAPI/config"
+	"autoAPI/template/cicd"
 )
 
 type CICDGenerator struct{}

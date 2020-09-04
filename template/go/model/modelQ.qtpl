@@ -1,6 +1,6 @@
 {% import "autoAPI/config" %}
-{% import importGenerator "autoAPI/generator/apiGenerator/golang/importGenerator" %}
-{% import typeTransformer "autoAPI/generator/apiGenerator/golang/typeTransformer" %}
+{% import importGenerator "autoAPI/generator/apigenerator/golang/importgenerator" %}
+{% import typeTransformer "autoAPI/generator/apigenerator/golang/typetransformer" %}
 
 {% func ModelQ(config config.Config) %}
 package model
