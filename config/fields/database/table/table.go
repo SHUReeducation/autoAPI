@@ -1,17 +1,19 @@
 package table
 
 import (
+	"errors"
+
 	"autoAPI/config/fields/database/complex"
 	"autoAPI/config/fields/database/field"
 	"autoAPI/config/fields/database/sqlparser"
-	"autoAPI/dbAdapter"
-	"autoAPI/utility/withCase"
-	"errors"
+	"autoAPI/dbadapter"
+	"autoAPI/utility/withcase"
+
 	"github.com/urfave/cli/v2"
 )
 
 type Table struct {
-	Name    *withCase.WithCase `yaml:"tablename" json:"tablename" toml:"tablename"`
+	Name    *withcase.WithCase `yaml:"tablename" json:"tablename" toml:"tablename"`
 	Fields  []field.Field      `yaml:"fields" json:"fields" toml:"fields"`
 	Complex []complex.Complex  `yaml:"complex" json:"complex" toml:"complex"`
 }
@@ -46,7 +48,7 @@ func (table *Table) Validate() error {
 func FromCommandLine(c *cli.Context) (*Table, error) {
 	table := Table{}
 	if name := c.String("tablename"); name != "" {
-		n := withCase.New(name)
+		n := withcase.New(name)
 		table.Name = &n
 	}
 	return &table, nil
@@ -66,7 +68,7 @@ func (table *Table) MergeWithSQL(sqlFilePath string, dbms string) error {
 
 func (table *Table) MergeWithDB(url string, dbEngine string) error {
 	if len(table.Fields) == 0 {
-		adapter, err := dbAdapter.New(dbEngine)
+		adapter, err := dbadapter.New(dbEngine)
 		if err != nil {
 			return err
 		}
@@ -83,7 +85,7 @@ func (table *Table) MergeWithDefault() {
 		}
 	}
 	table.Fields = append(
-		[]field.Field{{Name: withCase.New("id"), Type: "bigserial"}},
+		[]field.Field{{Name: withcase.New("id"), Type: "bigserial"}},
 		table.Fields...,
 	)
 }

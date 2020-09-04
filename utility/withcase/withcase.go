@@ -1,7 +1,8 @@
-package withCase
+package withcase
 
 import (
 	"encoding/json"
+
 	"github.com/iancoleman/strcase"
 	"github.com/pelletier/go-toml"
 	"gopkg.in/yaml.v3"
@@ -50,7 +51,7 @@ func (s *WithCase) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func (s *WithCase) MarshalJson() ([]byte, error) {
+func (s *WithCase) MarshalJSON() ([]byte, error) {
 	return json.Marshal(s.string)
 }
 

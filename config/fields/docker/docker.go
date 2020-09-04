@@ -1,8 +1,9 @@
 package docker
 
 import (
-	"github.com/urfave/cli/v2"
 	"os"
+
+	"github.com/urfave/cli/v2"
 )
 
 type Docker struct {

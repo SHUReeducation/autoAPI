@@ -1,49 +1,51 @@
 package sqlparser
 
 import (
-	"autoAPI/config/fields/database/field"
-	"autoAPI/utility/withCase"
 	"errors"
-	"github.com/pingcap/parser"
-	"github.com/pingcap/parser/ast"
-	"github.com/pingcap/parser/types"
-	_ "github.com/pingcap/tidb/types/parser_driver"
 	"io/ioutil"
 	"regexp"
 	"strings"
 	"unsafe"
+
+	"autoAPI/config/fields/database/field"
+	"autoAPI/utility/withcase"
+
+	"github.com/pingcap/parser"
+	"github.com/pingcap/parser/ast"
+	"github.com/pingcap/parser/types"
+	_ "github.com/pingcap/tidb/types/parser_driver" // register
 )
 
 // todo: handle multiple dbms
-func ParseCreateTable(path string, dbms string) (withCase.WithCase, []field.Field, error) {
-	s, err := getSqlString(path)
+func ParseCreateTable(path string, dbms string) (withcase.WithCase, []field.Field, error) {
+	s, err := getSQLString(path)
 	if err != nil {
-		return withCase.WithCase{}, nil, err
+		return withcase.WithCase{}, nil, err
 	}
 	parser := parser.New()
 	stmts, _, err := parser.Parse(s, "", "")
 	if err != nil {
-		return withCase.WithCase{}, nil, err
+		return withcase.WithCase{}, nil, err
 	}
-	var name withCase.WithCase
+	var name withcase.WithCase
 	var fields []field.Field
 	// todo: handle multiple create statements in one file
 	for _, stmt := range stmts {
 		ctStmt, ok := stmt.(*ast.CreateTableStmt)
 		if !ok {
-			return withCase.WithCase{}, nil, errors.New("cast type to CreateTableStmt fail")
+			return withcase.WithCase{}, nil, errors.New("cast type to CreateTableStmt fail")
 		}
 		for _, col := range ctStmt.Cols {
-			fields = append(fields, field.Field{Name: withCase.New(col.Name.Name.L),
+			fields = append(fields, field.Field{Name: withcase.New(col.Name.Name.L),
 				Type: types.TypeStr(col.Tp.Tp)})
 		}
-		w := withCase.New(ctStmt.Table.Name.L)
+		w := withcase.New(ctStmt.Table.Name.L)
 		name = w
 	}
 	return name, fields, nil
 }
 
-func getSqlString(path string) (string, error) {
+func getSQLString(path string) (string, error) {
 	b, err := ioutil.ReadFile(path)
 	if err != nil {
 		return "", err

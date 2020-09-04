@@ -1,16 +1,18 @@
 package database
 
 import (
-	"autoAPI/config/fields/database/table"
 	"errors"
-	_ "github.com/lib/pq"
-	"github.com/urfave/cli/v2"
 	"os"
+
+	_ "github.com/lib/pq" // db driver
+	"github.com/urfave/cli/v2"
+
+	"autoAPI/config/fields/database/table"
 )
 
 type Database struct {
 	DBEngine *string      `yaml:"dbengine" json:"dbengine" toml:"dbengine"`
-	Url      *string      `yaml:"url" json:"url" toml:"url"`
+	URL      *string      `yaml:"url" json:"url" toml:"url"`
 	Table    *table.Table `yaml:",inline" json:",inline" toml:",inline"`
 }
 
@@ -28,8 +30,8 @@ func (database *Database) MergeWith(other *Database) {
 	if database.DBEngine == nil {
 		database.DBEngine = other.DBEngine
 	}
-	if database.Url == nil {
-		database.Url = other.Url
+	if database.URL == nil {
+		database.URL = other.URL
 	}
 	if database.Table == nil {
 		database.Table = other.Table
@@ -70,7 +72,7 @@ func FromCommandLine(c *cli.Context) (*Database, error) {
 			t := "mysql"
 			result.DBEngine = &t
 		}
-		result.Url = &url
+		result.URL = &url
 	}
 	if dbengine := c.String("dbengine"); dbengine != "" {
 		t := dbengine
@@ -82,7 +84,7 @@ func FromCommandLine(c *cli.Context) (*Database, error) {
 }
 
 func (database *Database) MergeWithEnv() error {
-	if database.Url == nil {
+	if database.URL == nil {
 		if url := os.Getenv("DB_ADDRESS"); url != "" {
 			if url[:len("pgsql")] == "pgsql" || url[:len("postgres")] == "postgres" || url[:len("postgresql")] == "postgresql" {
 				t := "pgsql"
@@ -91,7 +93,7 @@ func (database *Database) MergeWithEnv() error {
 				t := "mysql"
 				database.DBEngine = &t
 			}
-			database.Url = &url
+			database.URL = &url
 		}
 	}
 	return nil
@@ -106,13 +108,13 @@ func (database *Database) MergeWithSQL(sqlFilePath string) error {
 }
 
 func (database *Database) MergeWithDB() error {
-	if database.DBEngine != nil && database.Url != nil {
-		return database.Table.MergeWithDB(*database.Url, *database.DBEngine)
+	if database.DBEngine != nil && database.URL != nil {
+		return database.Table.MergeWithDB(*database.URL, *database.DBEngine)
 	}
 	return nil
 }
 
-func (database *Database) GetDBEngineModUrl() string {
+func (database *Database) GetDBEngineModURL() string {
 	switch *database.DBEngine {
 	case "pgsql":
 		return "github.com/lib/pq"

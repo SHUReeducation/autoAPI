@@ -1,16 +1,18 @@
 package mysql
 
 import (
-	"autoAPI/config/fields/database/field"
-	"autoAPI/utility/withCase"
 	"database/sql"
-	_ "github.com/go-sql-driver/mysql"
+
+	"autoAPI/config/fields/database/field"
+	"autoAPI/utility/withcase"
+
+	_ "github.com/go-sql-driver/mysql" // db driver
 )
 
 type dbAdapter struct {
 }
 
-func (_ dbAdapter) FillFields(url string, tableName withCase.WithCase) ([]field.Field, error) {
+func (dbAdapter) FillFields(url string, tableName withcase.WithCase) ([]field.Field, error) {
 	db, err := sql.Open("mysql", url)
 	if err != nil {
 		return nil, err
@@ -31,7 +33,7 @@ func (_ dbAdapter) FillFields(url string, tableName withCase.WithCase) ([]field.
 		if err != nil {
 			return result, err
 		}
-		current.Name = withCase.New(nameStr)
+		current.Name = withcase.New(nameStr)
 		current.Type = columnTypeStr
 		if current.Name.CamelCase() != "id" {
 			result = append(result, current)

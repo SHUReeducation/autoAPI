@@ -4,13 +4,15 @@
 package main
 
 import (
-	"autoAPI/config"
-	"autoAPI/generator/apiGenerator/golang"
-	"autoAPI/generator/cicdGenerator"
 	"errors"
 	"fmt"
-	"github.com/urfave/cli/v2"
 	"os"
+
+	"github.com/urfave/cli/v2"
+
+	"autoAPI/config"
+	"autoAPI/generator/apigenerator/golang"
+	"autoAPI/generator/cicdgenerator"
 )
 
 func main() {
@@ -61,9 +63,8 @@ func main() {
 		Name:  "autoAPI",
 		Usage: "Generate an CRUD api endpoint program automatically!",
 		Action: func(c *cli.Context) error {
-			var currentConfigure *config.Config
-			var err error
-			if currentConfigure, err = config.FromCommandLine(c); err != nil {
+			currentConfigure, err := config.FromCommandLine(c)
+			if err != nil {
 				return err
 			}
 			if err = currentConfigure.MergeWithEnv(); err != nil {
@@ -89,7 +90,9 @@ func main() {
 			if err != nil {
 				return err
 			}
-			if finfo, err := os.Stat(c.String("output")); finfo != nil && finfo.IsDir() {
+
+			var finfo os.FileInfo
+			if finfo, err = os.Stat(c.String("output")); finfo != nil && finfo.IsDir() {
 				if err != nil {
 					return err
 				}
@@ -103,7 +106,7 @@ func main() {
 				}
 			}
 			gen := golang.APIGenerator{}
-			cicdGen := cicdGenerator.CICDGenerator{}
+			cicdGen := cicdgenerator.CICDGenerator{}
 			if err = gen.Generate(*currentConfigure, c.String("output")); err != nil {
 				return err
 			}
