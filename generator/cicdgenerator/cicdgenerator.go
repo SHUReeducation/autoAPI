@@ -41,13 +41,13 @@ func renderGitHubActions(config config.Config, dirPath string) error {
 }
 
 func (generator CICDGenerator) Generate(config config.Config, dirPath string) error {
-	if config.CICD.K8s == nil || *config.CICD.K8s {
+	if config.K8s != nil {
 		err := renderKubernetesDeployment(config, dirPath)
 		if err != nil {
 			return err
 		}
 	}
-	if config.CICD.GithubAction == nil || *config.CICD.GithubAction {
+	if config.GitHubAction {
 		err := renderGitHubActions(config, dirPath)
 		if err != nil {
 			return err

@@ -110,13 +110,11 @@ func main() {
 			if err = gen.Generate(*currentConfigure, c.String("output")); err != nil {
 				return err
 			}
-			if currentConfigure.CICD != nil {
-				err = cicdGen.Generate(*currentConfigure, c.String("output"))
-			}
+			err = cicdGen.Generate(*currentConfigure, c.String("output"))
 			return err
 		},
 	}).Run(os.Args)
 	if err != nil {
-		_ = fmt.Errorf("%s", err.Error())
+		panic(fmt.Errorf("%s", err.Error()))
 	}
 }

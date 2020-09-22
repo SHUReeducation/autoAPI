@@ -12,6 +12,6 @@ require (
 	github.com/pingcap/parser v0.0.0-20200623164729-3a18f1e5dceb
 	github.com/pingcap/tidb v1.1.0-beta.0.20200630082100-328b6d0a955c
 	github.com/urfave/cli/v2 v2.2.0
-	github.com/valyala/quicktemplate v1.6.2
+	github.com/valyala/quicktemplate v1.6.3
 	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776
 )
