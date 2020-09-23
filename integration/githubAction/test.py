@@ -3,7 +3,7 @@ import subprocess
 import unittest
 
 
-class CICDGeneratingTest(unittest.TestCase):
+class GitHubActionGeneratingTest(unittest.TestCase):
     def test_default(self):
         subprocess.run("./autoAPI --force -f ./integration/docker/default.yml --force -o ./api".split(' '))
         self.assertFalse(os.path.exists("./api/.github/workflows/dockerimage.yml"))
@@ -23,7 +23,7 @@ class CICDGeneratingTest(unittest.TestCase):
     def test_docker_image_name(self):
         # set docker info by command
         subprocess.run(
-            "./autoAPI --force -f ./integration/docker/default.yml --force -du testuser -dt v0 -o ./api".split(
+            "./autoAPI --force -f ./integration/docker/default.yml -du testuser -dt v0 -o ./api".split(
                 ' '))
         self.assertTrue(os.path.exists("./api/.github/workflows/dockerimage.yml"))
         with open("./api/.github/workflows/dockerimage.yml") as f:
@@ -49,6 +49,4 @@ class CICDGeneratingTest(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    loader = unittest.TestLoader()
-    loader.sortTestMethodsUsing = None
-    unittest.main(testLoader=loader)
+    unittest.main()

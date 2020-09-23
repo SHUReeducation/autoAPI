@@ -24,6 +24,9 @@ func (k8s *K8s) MergeWith(other *K8s) {
 }
 
 func FromCommandLine(c *cli.Context) (*K8s, error) {
+	if c.Bool("nok8s") {
+		return nil, nil
+	}
 	var result K8s
 	if host := c.String("host"); host != "" {
 		result.Host = &host

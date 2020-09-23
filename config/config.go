@@ -139,16 +139,17 @@ func (c *Config) MergeWith(other *Config) {
 }
 
 func (c *Config) Validate() error {
-	if c.K8s != nil && c.K8s.Uri == nil && c.K8s.Host == nil {
-		c.K8s = nil
-	}
 	err := c.Database.Validate()
-	if c.K8s != nil && c.Database.URL == nil {
-		err := fmt.Errorf("database url must be provided if want to generate k8s config")
-		return err
-	}
 	if err != nil {
 		return err
+	}
+	if c.K8s != nil && c.Database.URL == nil {
+		if c.K8s.Uri != nil || c.K8s.Host != nil || c.K8s.Namespace != nil {
+			err := fmt.Errorf("database url must be provided if want to generate k8s config")
+			return err
+		} else {
+			c.K8s = nil
+		}
 	}
 	if c.K8s != nil && c.K8s.Uri == nil {
 		uri := "/api/" + c.Database.Table.Name.KebabCase()
