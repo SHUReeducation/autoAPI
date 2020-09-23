@@ -1,15 +1,13 @@
 docker:
-  username: zhoudian64
+  username: testdockeruser
   tag: 0.0.1
-GitHubAction: true
 k8s:
   host: cloud.shuosc.com
-  uri: /api/student
+  uri: /api/student-svc
   namespace: development
 database:
-  dbengine: pgsql
+  url: "postgres://shuosc@shu-course-postgres-svc:5432/shu-course?sslmode=disable"
   tablename: student
-  url: postgres://shuosc@shu-course-postgres-svc:5432/shu-course?sslmode=disable
   fields:
     - name: name
       type: varchar(24)

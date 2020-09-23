@@ -4,6 +4,8 @@
 package main
 
 import (
+	"autoAPI/generator/githubActionsGenerator"
+	"autoAPI/generator/k8sGenerator"
 	"errors"
 	"fmt"
 	"os"
@@ -12,7 +14,6 @@ import (
 
 	"autoAPI/config"
 	"autoAPI/generator/apigenerator/golang"
-	"autoAPI/generator/cicdgenerator"
 )
 
 func main() {
@@ -50,6 +51,13 @@ func main() {
 				Name:     "nodocker",
 				Aliases:  []string{"nd"},
 				Usage:    "Force not generating docker",
+				Required: false,
+				Value:    false,
+			},
+			&cli.BoolFlag{
+				Name:     "nok8s",
+				Aliases:  []string{"nk"},
+				Usage:    "Force not generating k8s config",
 				Required: false,
 				Value:    false,
 			},
@@ -106,17 +114,25 @@ func main() {
 				}
 			}
 			gen := golang.APIGenerator{}
-			cicdGen := cicdgenerator.CICDGenerator{}
 			if err = gen.Generate(*currentConfigure, c.String("output")); err != nil {
 				return err
 			}
-			if currentConfigure.CICD != nil {
-				err = cicdGen.Generate(*currentConfigure, c.String("output"))
+			if currentConfigure.GitHubAction {
+				gitHubActionsGen := githubActionsGenerator.GitHubActionsGenerator{}
+				if err = gitHubActionsGen.Generate(*currentConfigure, c.String("output")); err != nil {
+					return err
+				}
+			}
+			if currentConfigure.K8s != nil {
+				k8sGen := k8sGenerator.K8sGenerator{}
+				if err = k8sGen.Generate(*currentConfigure, c.String("output")); err != nil {
+					return err
+				}
 			}
 			return err
 		},
 	}).Run(os.Args)
 	if err != nil {
-		_ = fmt.Errorf("%s", err.Error())
+		panic(fmt.Errorf("%s", err.Error()))
 	}
 }

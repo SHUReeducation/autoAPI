@@ -1,8 +1,10 @@
 package config
 
 import (
+	"autoAPI/config/fields/k8s"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -12,15 +14,15 @@ import (
 	"github.com/urfave/cli/v2"
 	"gopkg.in/yaml.v3"
 
-	"autoAPI/config/fields/cicd"
 	"autoAPI/config/fields/database"
 	"autoAPI/config/fields/docker"
 )
 
 type Config struct {
-	Docker   *docker.Docker     `yaml:"docker" json:"docker" toml:"docker"`
-	CICD     *cicd.CICD         `yaml:"cicd" json:"cicd" toml:"cicd"`
-	Database *database.Database `yaml:"database" json:"database" toml:"database"`
+	Docker       *docker.Docker     `yaml:"docker" json:"docker"`
+	Database     *database.Database `yaml:"database" json:"database"`
+	GitHubAction bool               `yaml:"GitHubAction" json:"GitHubAction"`
+	K8s          *k8s.K8s           `yaml:"k8s" json:"k8s"`
 }
 
 func FromCommandLine(c *cli.Context) (*Config, error) {
@@ -34,7 +36,8 @@ func FromCommandLine(c *cli.Context) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	result.CICD, err = cicd.FromCommandLine(c)
+	result.GitHubAction = c.Bool("ghaction")
+	result.K8s, err = k8s.FromCommandLine(c)
 	return &result, err
 }
 
@@ -66,11 +69,6 @@ func (c *Config) MergeWithDB() error {
 }
 
 func (c *Config) MergeWithDefault() error {
-	if c.CICD != nil {
-		if err := c.CICD.MergeWithDefault(); err != nil {
-			return err
-		}
-	}
 	if c.Database != nil {
 		if err := c.Database.MergeWithDefault(); err != nil {
 			return err
@@ -127,10 +125,11 @@ func (c *Config) MergeWith(other *Config) {
 	} else {
 		c.Docker.MergeWith(other.Docker)
 	}
-	if c.CICD == nil {
-		c.CICD = other.CICD
-	} else {
-		c.CICD.MergeWith(other.CICD)
+	if c.GitHubAction == false {
+		c.GitHubAction = other.GitHubAction
+	}
+	if c.K8s != nil {
+		c.K8s.MergeWith(other.K8s)
 	}
 	if c.Database == nil {
 		c.Database = other.Database
@@ -140,12 +139,21 @@ func (c *Config) MergeWith(other *Config) {
 }
 
 func (c *Config) Validate() error {
-	if (c.CICD != nil && c.CICD.K8s == nil && c.CICD.GithubAction == nil) || (c.Docker == nil || c.Docker.Username == nil || c.Docker.Tag == nil) {
-		c.CICD = nil
-	}
 	err := c.Database.Validate()
 	if err != nil {
 		return err
 	}
-	return err
+	if c.K8s != nil && c.Database.URL == nil {
+		if c.K8s.Uri != nil || c.K8s.Host != nil || c.K8s.Namespace != nil {
+			err := fmt.Errorf("database url must be provided if want to generate k8s config")
+			return err
+		} else {
+			c.K8s = nil
+		}
+	}
+	if c.K8s != nil && c.K8s.Uri == nil {
+		uri := "/api/" + c.Database.Table.Name.KebabCase()
+		c.K8s.Uri = &uri
+	}
+	return nil
 }

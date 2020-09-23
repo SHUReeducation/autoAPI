@@ -1,7 +1,7 @@
 build: generate
 	CGO_ENABLED=0 go build
 
-generate: 
+generate:
 	go generate
 
 run-example: generate
@@ -10,6 +10,10 @@ run-example: generate
 clean:
 	rm -rf ./template/**/*.qtpl.go
 	rm -rf ./autoAPI
+
+lint:
+	make clean
+	goimports -w .
 
 build-release: generate
 	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o autoAPI.exe

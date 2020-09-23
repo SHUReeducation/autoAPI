@@ -181,7 +181,7 @@ jobs:
   cicd:
     needs: smoke_test
     runs-on: ubuntu-latest
-    name: Run generating cicd test
+    name: Run generating Github Actions config test
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
@@ -191,4 +191,18 @@ jobs:
       - name: Build
         run: make build
       - name: Run the test case
-        run: python3 ./integration/cicd/test.py
+        run: python3 ./integration/githubAction/test.py
+  k8s:
+    needs: smoke_test
+    runs-on: ubuntu-latest
+    name: Run generating k8s config test
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: 1.14
+      - name: Build
+        run: make build
+      - name: Run the test case
+        run: python3 ./integration/k8s/test.py
