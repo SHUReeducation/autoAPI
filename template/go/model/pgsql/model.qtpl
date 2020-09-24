@@ -55,14 +55,14 @@ func Put(object {%v apiConfig.Name.PascalCase() %}) ({%v apiConfig.Name.PascalCa
     // todo: do these two in a transaction
     infrastructure.DB.Exec(`
         UPDATE {%v apiConfig.Name.PascalCase() %}
-        SET {% for i, field := range apiConfig.Model.FieldsWithOutPrimaryKey() %}{%v field.Name.SnakeCase() %}=?{% if i + 2 < len(apiConfig.Model.Fields) %}, {% endif %}{% endfor %}
+        SET {% for i, field := range apiConfig.Model.FieldsWithOutPrimaryKey() %}{%v field.Name.SnakeCase() %}=${%v i + 1 %}{% if i + 2 < len(apiConfig.Model.Fields) %}, {% endif %}{% endfor %}
         WHERE id=?;
         `, {%v apiConfig.Model.FieldNamesWithPrefix("object.") %}, object.Id)
     row := infrastructure.DB.QueryRow(`
         SELECT {%v apiConfig.Model.DBNamesString() %}
         FROM {%v apiConfig.Name.PascalCase() %} WHERE id=?;
     `, object.Id)
-    err = row.Scan({%v apiConfig.Model.FieldNamesWithPrefix("&object.") %})
+    err := row.Scan({%s= apiConfig.Model.FieldNamesWithPrefix("&object.") %})
     return object, err
 }
 

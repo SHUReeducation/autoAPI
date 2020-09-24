@@ -32,3 +32,14 @@ func (api API) GetDBEngineModURL() string {
 		panic("unsupported dbms")
 	}
 }
+
+func (api API) GetDBDriver() string {
+	switch api.DBEngine {
+	case "pgsql":
+		return "postgres"
+	case "mysql":
+		return "mysql"
+	default:
+		panic("unsupported dbms")
+	}
+}

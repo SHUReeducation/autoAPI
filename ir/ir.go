@@ -18,11 +18,15 @@ type IR struct {
 func Low(config config.Config) IR {
 	var ghAction *githubActions.GitHubActions
 	var k *k8s.K8s
-	action := githubActions.Low(config)
-	ghAction = &action
-	kube := k8s.Low(config)
-	k = &kube
 	var df *dockerfile.Dockerfile
+	if config.GitHubAction {
+		action := githubActions.Low(config)
+		ghAction = &action
+	}
+	if config.K8s != nil {
+		kube := k8s.Low(config)
+		k = &kube
+	}
 	if config.Docker != nil {
 		df = &dockerfile.Dockerfile{Name: *config.Database.Table.Name}
 	}

@@ -40,7 +40,10 @@ func (s Struct) FieldsWithOutPrimaryKey() []Field {
 func (s Struct) Imports() []string {
 	var result []string
 	for _, field := range s.Fields {
-		result = append(result, field.Import())
+		importStr := field.Import()
+		if importStr != "" {
+			result = append(result, importStr)
+		}
 	}
 	return result
 }
