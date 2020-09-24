@@ -1,0 +1,17 @@
+{% import "autoAPI/ir/githubActions" %}
+
+{% func Render(actions githubActions.GitHubActions) %}
+name: Docker Image CI
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build the Docker image
+        run: |
+          docker build . -t {%v actions.DockerUsername %}/{%v actions.Name.KebabCase() %}:{%v actions.Tag %}
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login --username "{%v actions.DockerUsername %}" --password-stdin
+          docker push {%v actions.DockerUsername %}/{%v actions.Name.KebabCase() %}:{%v actions.Tag %}
+{% endfunc %}

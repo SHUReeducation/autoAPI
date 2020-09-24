@@ -1,0 +1,54 @@
+{% import "autoAPI/ir/k8s" %}
+
+{% func Render(config k8s.K8s) %}
+kind: Deployment
+metadata:
+  name: {%v config.Name.KebabCase() %}
+  {% if config.Namespace != nil -%}namespace: {%v *config.Namespace %}{% endif %}
+  labels:
+    app: {%v config.Name.KebabCase() %}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {%v config.Name.KebabCase() %}
+    spec:
+      containers:
+        - name: {%v config.Name.KebabCase() %}
+          image: {%v config.DockerUsername %}/{%v config.Name.KebabCase() %}:{%v config.DockerTag %}
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DB_ADDRESS
+              value: "{%v config.DBUrl %}"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {%v config.Name.KebabCase() %}-svc
+  {%- if config.Namespace != nil -%}namespace: {%v *config.Namespace %}{%- endif %}
+spec:
+  selector:
+    app: {%v config.Name.KebabCase() %}
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+{% if config.Host != nil && config.Uri != nil %}
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {%v config.Name.KebabCase() %}-ingress
+  {%- if config.Namespace != nil -%}namespace: {%v *config.Namespace %}{%- endif %}
+spec:
+  rules:
+  - host: {%v *config.Host %}
+    http:
+      paths:
+      - path: {%v *config.Uri %}
+        backend:
+          serviceName: {%v config.Name.KebabCase() %}-svc
+          servicePort: 8000
+{% endif %}
+{% endfunc %}

@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v2
       - uses: actions/setup-go@v2
         with:
-          go-version: 1.14
+          go-version: 1.15
       - name: Build
         run: make build
       - name: Run the test case
@@ -45,7 +45,7 @@ jobs:
         uses: actions/checkout@v2
       - uses: actions/setup-go@v2
         with:
-          go-version: 1.14
+          go-version: 1.15
       - name: Init database
         uses: docker://migrate/migrate
         with:
@@ -81,7 +81,7 @@ jobs:
         uses: actions/checkout@v2
       - uses: actions/setup-go@v2
         with:
-          go-version: 1.14
+          go-version: 1.15
       - name: Init database
         uses: docker://migrate/migrate
         with:
@@ -116,7 +116,7 @@ jobs:
         uses: actions/checkout@v2
       - uses: actions/setup-go@v2
         with:
-          go-version: 1.14
+          go-version: 1.15
       - name: Init database
         uses: docker://migrate/migrate
         with:
@@ -152,7 +152,7 @@ jobs:
         uses: actions/checkout@v2
       - uses: actions/setup-go@v2
         with:
-          go-version: 1.14
+          go-version: 1.15
       - name: Init database
         uses: docker://migrate/migrate
         with:
@@ -173,7 +173,7 @@ jobs:
         uses: actions/checkout@v2
       - uses: actions/setup-go@v2
         with:
-          go-version: 1.14
+          go-version: 1.15
       - name: Build
         run: make build
       - name: Run the test case
@@ -187,7 +187,7 @@ jobs:
         uses: actions/checkout@v2
       - uses: actions/setup-go@v2
         with:
-          go-version: 1.14
+          go-version: 1.15
       - name: Build
         run: make build
       - name: Run the test case
@@ -201,7 +201,7 @@ jobs:
         uses: actions/checkout@v2
       - uses: actions/setup-go@v2
         with:
-          go-version: 1.14
+          go-version: 1.15
       - name: Build
         run: make build
       - name: Run the test case
