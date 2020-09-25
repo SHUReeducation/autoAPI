@@ -117,7 +117,7 @@ func main() {
 			currentIR := ir.Low(*currentConfigure)
 			currentTarget := target.Low(currentIR)
 			gen := golang.Generator{}
-			gen.Generate(currentTarget, c.String("output"))
+			err = gen.Generate(currentTarget, c.String("output"))
 			return err
 		},
 	}).Run(os.Args)

@@ -11,6 +11,7 @@ import (
 	"autoAPI/template/go/mainTemplate"
 	mysqlModelTemplate "autoAPI/template/go/model/mysql"
 	pgsqlModelTemplate "autoAPI/template/go/model/pgsql"
+	"fmt"
 	"os"
 	"path/filepath"
 )
@@ -77,6 +78,7 @@ func renderModel(apiConfig api.API, dirPath string) error {
 	}
 	var modelFileContent string
 	// todo: use inherit instead of if
+	fmt.Println("    Use database engine", apiConfig.DBEngine)
 	if apiConfig.DBEngine == "mysql" {
 		modelFileContent = mysqlModelTemplate.Render(apiConfig)
 	} else if apiConfig.DBEngine == "pgsql" {
@@ -119,6 +121,7 @@ func renderGoMod(apiConfig api.API, dirPath string) error {
 }
 
 func (b Generator) GenerateDockerFile(dockerConfig dockerfile.Dockerfile, dirPath string) error {
+	fmt.Println("Generating Dockerfile")
 	dockerFileContent := dockerfileTemplate.Render(dockerConfig)
 	dockerfileFile, err := os.Create(filepath.Join(dirPath, "Dockerfile"))
 	if err != nil {
@@ -130,6 +133,7 @@ func (b Generator) GenerateDockerFile(dockerConfig dockerfile.Dockerfile, dirPat
 }
 
 func (b Generator) Generate(targetConfig api.Target, dirPath string) error {
+	fmt.Println("Generating API for Golang")
 	if err := b.GenerateAPI(targetConfig.API, dirPath); err != nil {
 		return err
 	}

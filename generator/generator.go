@@ -5,6 +5,7 @@ import (
 	"autoAPI/ir/dockerfile"
 	"autoAPI/ir/githubActions"
 	"autoAPI/ir/k8s"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -31,6 +32,7 @@ func (b Base) GenerateDockerFile(_ dockerfile.Dockerfile, _ string) error {
 }
 
 func (b Base) GenerateGitHubActions(actions githubActions.GitHubActions, dirPath string) error {
+	fmt.Println("Generating GitHub Actions config")
 	githubActionDir := filepath.Join(dirPath, ".github")
 	if err := os.Mkdir(githubActionDir, 0755); err != nil {
 		return err
@@ -50,6 +52,7 @@ func (b Base) GenerateGitHubActions(actions githubActions.GitHubActions, dirPath
 }
 
 func (b Base) GenerateK8s(k8s k8s.K8s, dirPath string) error {
+	fmt.Println("Generating K8s config")
 	kubernetesDeploymentFile, err := os.Create(filepath.Join(dirPath, k8s.Name.KebabCase()+".yaml"))
 	if err != nil {
 		return err

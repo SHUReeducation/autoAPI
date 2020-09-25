@@ -19,11 +19,11 @@ func Low(config config.Config) IR {
 	var ghAction *githubActions.GitHubActions
 	var k *k8s.K8s
 	var df *dockerfile.Dockerfile
-	if config.GitHubAction {
+	if config.Docker != nil && config.Docker.Username != nil && config.Docker.Tag != nil && config.GitHubAction {
 		action := githubActions.Low(config)
 		ghAction = &action
 	}
-	if config.Docker == nil || config.K8s != nil {
+	if config.Docker != nil && config.Docker.Username != nil && config.Docker.Tag != nil && config.K8s != nil {
 		kube := k8s.Low(config)
 		k = &kube
 	}

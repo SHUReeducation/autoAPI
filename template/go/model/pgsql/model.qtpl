@@ -52,23 +52,19 @@ func Scan(offset uint64, limit uint64) ([]{%v apiConfig.Name.PascalCase() %}, er
 }
 
 func Put(object {%v apiConfig.Name.PascalCase() %}) ({%v apiConfig.Name.PascalCase() %}, error) {
-    // todo: do these two in a transaction
-    infrastructure.DB.Exec(`
+    row := infrastructure.DB.QueryRow(`
         UPDATE {%v apiConfig.Name.PascalCase() %}
         SET {% for i, field := range apiConfig.Model.FieldsWithOutPrimaryKey() %}{%v field.Name.SnakeCase() %}=${%v i + 1 %}{% if i + 2 < len(apiConfig.Model.Fields) %}, {% endif %}{% endfor %}
-        WHERE id=?;
-        `, {%v apiConfig.Model.FieldNamesWithPrefix("object.") %}, object.Id)
-    row := infrastructure.DB.QueryRow(`
-        SELECT {%v apiConfig.Model.DBNamesString() %}
-        FROM {%v apiConfig.Name.PascalCase() %} WHERE id=?;
-    `, object.Id)
-    err := row.Scan({%s= apiConfig.Model.FieldNamesWithPrefix("&object.") %})
+        WHERE id=${%v len(apiConfig.Model.Fields) %}
+        RETURNING {%v apiConfig.Model.DBNamesString() %};
+        `, {%v apiConfig.Model.FieldWithOutPrimaryKeyWithPrefix("object.") %}, object.Id)
+    err := row.Scan({%s= apiConfig.Model.FieldNamesWithPrefix("&object.")%})
     return object, err
 }
 
 func Delete(id {%s= apiConfig.Model.PrimaryKey().Type.(string) %}) error {
     _, err := infrastructure.DB.Exec(`
-        DELETE FROM {%v apiConfig.Name.PascalCase() %} WHERE id=?;
+        DELETE FROM {%v apiConfig.Name.PascalCase() %} WHERE id=$1;
         `, id)
     return err
 }

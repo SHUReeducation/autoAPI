@@ -37,6 +37,16 @@ func (s Struct) FieldsWithOutPrimaryKey() []Field {
 	return result
 }
 
+func (s Struct) FieldWithOutPrimaryKeyWithPrefix(prefix string) string {
+	var fieldNames []string
+	for _, field := range s.Fields {
+		if field.Name.CamelCase() != "id" {
+			fieldNames = append(fieldNames, prefix+field.Name.PascalCase())
+		}
+	}
+	return strings.Join(fieldNames, ", ")
+}
+
 func (s Struct) Imports() []string {
 	var result []string
 	for _, field := range s.Fields {
