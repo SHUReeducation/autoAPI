@@ -4,8 +4,9 @@
 package main
 
 import (
-	"autoAPI/generator/githubActionsGenerator"
-	"autoAPI/generator/k8sGenerator"
+	"autoAPI/generator/golang"
+	"autoAPI/ir"
+	target "autoAPI/target/golang"
 	"errors"
 	"fmt"
 	"os"
@@ -13,7 +14,6 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"autoAPI/config"
-	"autoAPI/generator/apigenerator/golang"
 )
 
 func main() {
@@ -113,22 +113,11 @@ func main() {
 					return errors.New("output dir already exists. Use '--force' to force remove it")
 				}
 			}
-			gen := golang.APIGenerator{}
-			if err = gen.Generate(*currentConfigure, c.String("output")); err != nil {
-				return err
-			}
-			if currentConfigure.GitHubAction {
-				gitHubActionsGen := githubActionsGenerator.GitHubActionsGenerator{}
-				if err = gitHubActionsGen.Generate(*currentConfigure, c.String("output")); err != nil {
-					return err
-				}
-			}
-			if currentConfigure.K8s != nil {
-				k8sGen := k8sGenerator.K8sGenerator{}
-				if err = k8sGen.Generate(*currentConfigure, c.String("output")); err != nil {
-					return err
-				}
-			}
+
+			currentIR := ir.Low(*currentConfigure)
+			currentTarget := target.Low(currentIR)
+			gen := golang.Generator{}
+			err = gen.Generate(currentTarget, c.String("output"))
 			return err
 		},
 	}).Run(os.Args)

@@ -1,0 +1,79 @@
+{% import api "autoAPI/target/golang" %}
+
+{% func Render(apiConfig api.API) %}
+package model
+
+import (
+    "{%v apiConfig.Name.CamelCase() %}/infrastructure"
+    {% for _, extra := range apiConfig.Model.Imports() %}"{%s= extra %}"
+    {% endfor %}
+)
+
+type {%v apiConfig.Name.PascalCase() %} struct {
+    {% for _, field := range apiConfig.Model.Fields %}{%v field.Name.PascalCase() %} {%s= field.Type.(string) %} `json:"{%v field.Name.SnakeCase() %}"`
+    {% endfor %}
+}
+
+func Create(object {%v apiConfig.Name.PascalCase() %}) ({%v apiConfig.Name.PascalCase() %}, error) {
+    {% if apiConfig.Model.PrimaryKey().Type.(string) == "int64" %}ret{% else %}_{% endif %}, err := infrastructure.DB.Exec(`
+        INSERT INTO {%v apiConfig.Name.PascalCase() %}({%v apiConfig.Model.DBNamesString() %})
+        VALUES ({%v= apiConfig.Model.RepeatFieldTimes("?") %});`, {%v apiConfig.Model.FieldNamesWithPrefix("object.") %})
+        {% if apiConfig.Model.PrimaryKey().Type.(string) == "int64" %}
+    if ret != nil {
+        object.Id, _ = ret.LastInsertId()
+    }
+    {% endif %}
+    return object, err
+}
+
+func Get(id {%s= apiConfig.Model.PrimaryKey().Type.(string) %}) ({%v apiConfig.Name.PascalCase() %}, error) {
+    row := infrastructure.DB.QueryRow(`
+		SELECT {%v apiConfig.Model.DBNamesString() %}
+		FROM {%v apiConfig.Name.PascalCase() %} WHERE id=?;`, id)
+    object := {%v apiConfig.Name.PascalCase() %} { Id: id }
+    err := row.Scan({%s= apiConfig.Model.FieldNamesWithPrefix("&object.") %})
+    return object, err
+}
+
+func Scan(offset uint64, limit uint64) ([]{%v apiConfig.Name.PascalCase() %}, error) {
+    rows, err := infrastructure.DB.Query(`
+        SELECT {%v apiConfig.Model.DBNamesString() %}
+        FROM {%v apiConfig.Name.PascalCase() %}
+        LIMIT ? OFFSET ?;`, limit, offset)
+    if err != nil {
+        return nil, err
+    }
+    var result []{%v apiConfig.Name.PascalCase() %}
+    for rows.Next() {
+        var scanned {%v apiConfig.Name.PascalCase() %}
+        err := rows.Scan({%s= apiConfig.Model.FieldNamesWithPrefix("&scanned.") %})
+        if err != nil {
+            return result, err
+        }
+        result = append(result, scanned)
+    }
+    return result, nil
+}
+
+func Put(object {%v apiConfig.Name.PascalCase() %}) ({%v apiConfig.Name.PascalCase() %}, error) {
+    // todo: do these two in a transaction
+    infrastructure.DB.Exec(`
+        UPDATE {%v apiConfig.Name.PascalCase() %}
+        SET {% for i, field := range apiConfig.Model.FieldsWithOutPrimaryKey() %}{%v field.Name.SnakeCase() %}=?{% if i + 2 < len(apiConfig.Model.Fields) %}, {% endif %}{% endfor %}
+        WHERE id=?;
+        `, {%v apiConfig.Model.FieldWithOutPrimaryKeyWithPrefix("object.") %}, object.Id)
+    row := infrastructure.DB.QueryRow(`
+        SELECT {%v apiConfig.Model.DBNamesString() %}
+        FROM {%v apiConfig.Name.PascalCase() %} WHERE id=?;
+    `, object.Id)
+    err := row.Scan({%s= apiConfig.Model.FieldNamesWithPrefix("&object.") %})
+    return object, err
+}
+
+func Delete(id {%s= apiConfig.Model.PrimaryKey().Type.(string) %}) error {
+    _, err := infrastructure.DB.Exec(`
+        DELETE FROM {%v apiConfig.Name.PascalCase() %} WHERE id=?;
+        `, id)
+    return err
+}
+{% endfunc %}

@@ -114,17 +114,6 @@ func (database *Database) MergeWithDB() error {
 	return nil
 }
 
-func (database *Database) GetDBEngineModURL() string {
-	switch *database.DBEngine {
-	case "pgsql":
-		return "github.com/lib/pq"
-	case "mysql":
-		return "github.com/go-sql-driver/mysql"
-	default:
-		panic("unsupported dbms")
-	}
-}
-
 func (database *Database) GetDBEngine() string {
 	switch *database.DBEngine {
 	case "pgsql":

@@ -7,9 +7,9 @@ k8s:
   uri: /api/student
   namespace: development
 database:
-  dbengine: pgsql
+  dbengine: mysql
   tablename: student
-  url: postgres://shuosc@shu-course-postgres-svc:5432/shu-course?sslmode=disable
+  url: mysql://user:password@tcp(mysql:3306)/database
   fields:
     - name: name
       type: varchar(24)

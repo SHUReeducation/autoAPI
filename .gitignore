@@ -99,4 +99,4 @@ Temporary Items
 template/**/*.qtpl.go
 autoAPI
 example/student/
-api/
+/api

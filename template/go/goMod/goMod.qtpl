@@ -1,7 +1,7 @@
-{% import "autoAPI/config" %}
+{% import api "autoAPI/target/golang" %}
 
-{% func GoMod(config config.Config) %}
-module {%v config.Database.Table.Name.CamelCase() %}
+{% func Render(config api.API) %}
+module {%v config.Name.CamelCase() %}
 
-go 1.14
+go 1.15
 {% endfunc %}

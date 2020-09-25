@@ -2,7 +2,7 @@ name: Build & Release
 
 on:
   push:
-    tags: 
+    tags:
       - 'v*'
 jobs:
   release-binary:
@@ -12,7 +12,7 @@ jobs:
     - name: Setup Go
       uses: actions/setup-go@v2.1.1
       with:
-        go-version: 1.14
+        go-version: 1.15
     - name: Build
       run: |
         make build-release
@@ -26,7 +26,7 @@ jobs:
           autoAPI-darwin-amd64.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
+
   release-docker:
     runs-on: ubuntu-latest
     steps:
