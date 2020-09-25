@@ -143,7 +143,7 @@ func (c *Config) Validate() error {
 	if err != nil {
 		return err
 	}
-	if c.Docker.Username == nil || c.Docker.Tag == nil {
+	if c.Docker != nil && (c.Docker.Username == nil || c.Docker.Tag == nil) {
 		c.Docker = nil
 	}
 	if c.K8s != nil && c.Database.URL == nil {

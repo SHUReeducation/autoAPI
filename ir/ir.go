@@ -23,7 +23,7 @@ func Low(config config.Config) IR {
 		action := githubActions.Low(config)
 		ghAction = &action
 	}
-	if config.K8s != nil {
+	if config.Docker == nil || config.K8s != nil {
 		kube := k8s.Low(config)
 		k = &kube
 	}
