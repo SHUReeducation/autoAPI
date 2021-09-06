@@ -1,0 +1,3 @@
+module {{ model.name | singular | camel_case }}
+
+go 1.17

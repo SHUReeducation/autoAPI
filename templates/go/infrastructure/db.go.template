@@ -1,0 +1,17 @@
+package infrastructure
+
+import (
+	"database/sql"
+	_ "{{ golang.imports.database_library }}"
+	"os"
+)
+
+var DB *sql.DB
+
+func init() {
+	var err error
+	DB, err = sql.Open("{{ golang.db_driver }}", os.Getenv("DB_ADDRESS"))
+	if err != nil {
+		panic(err)
+	}
+}

@@ -1,0 +1,131 @@
+package handler
+
+import (
+    "{{ model.name | singular | camel_case }}/model"
+    "encoding/json"
+    "io/ioutil"
+    "log"
+    "net/http"
+	"strconv"
+    "fmt"
+    "github.com/gorilla/mux"
+)
+
+{%- set type_name = model.name | singular | pascal_case -%}
+{%- set variable_name = model.name | singular | camel_case %}
+
+func PostHandler(w http.ResponseWriter, r *http.Request) {
+    w.Header().Add("Content-Type", "application/json")
+    body, _ := ioutil.ReadAll(r.Body)
+    var toCreate model.{{ type_name }}
+    _ = json.Unmarshal(body, &toCreate)
+    result, err := model.Create(toCreate)
+    if err != nil {
+        log.Println("Create {{ type_name }} failed:", err)
+        w.WriteHeader(http.StatusInternalServerError)
+        _, _ = w.Write([]byte(err.Error()))
+        return
+    } else {
+        log.Println("{{ type_name }}", result, "created")
+    }
+    response, err := json.Marshal(result)
+    w.WriteHeader(http.StatusCreated)
+    _, _ = w.Write(response)
+}
+
+func GetHandler(w http.ResponseWriter, r *http.Request) {
+    w.Header().Add("Content-Type", "application/json")
+    {#- TODO: These id relate code is same with those in DeleteHandler, maybe introduce a macro? #}
+    {% if is_string(data_type=model.primary_key.data_type) %}
+    pk := mux.Vars(r)["{{ model.primary_key.name }}"]
+    {% else %}
+    pkStr := mux.Vars(r)["{{ model.primary_key.name }}"]
+    var pk {{ data_type(data_type=model.primary_key.data_type) }}
+    {# TODO: Sscan might be slow, maybe we should add a fast path for int #}
+    _, err := fmt.Sscan(pkStr, &pk)
+    {% endif %}
+    object, err := model.Get(pk)
+    if err != nil {
+        w.WriteHeader(http.StatusNotFound)
+        return
+    }
+    resp, _ := json.Marshal(object)
+    _, _ = w.Write(resp)
+}
+
+func ScanHandler(w http.ResponseWriter, r *http.Request) {
+    w.Header().Add("Content-Type", "application/json")
+    limitStr := r.URL.Query().Get("limit")
+    limit, err := strconv.ParseUint(limitStr, 10, 64)
+    if err != nil {
+        log.Println("Scan {{ type_name }} failed:", err)
+        w.WriteHeader(http.StatusBadRequest)
+        _, _ = w.Write([]byte(err.Error()))
+        return
+    }
+    offsetStr := r.URL.Query().Get("offset")
+    offset, err := strconv.ParseUint(offsetStr, 10, 64)
+    if err != nil {
+        log.Println("Scan {{ type_name }} failed:", err)
+        w.WriteHeader(http.StatusBadRequest)
+        _, _ = w.Write([]byte(err.Error()))
+        return
+    }
+    result, err := model.Scan(offset, limit)
+    if err != nil {
+        log.Println("Scan {{ type_name }} failed:", err)
+        w.WriteHeader(http.StatusInternalServerError)
+        _, _ = w.Write([]byte(err.Error()))
+        return
+    }
+    var body []byte
+    if len(result) != 0 {
+        body, _ = json.Marshal(result)
+    } else {
+        body = []byte("[]")
+    }
+    _, _ = w.Write(body)
+}
+
+func PutHandler(w http.ResponseWriter, r *http.Request) {
+    w.Header().Add("Content-Type", "application/json")
+    body, _ := ioutil.ReadAll(r.Body)
+    var toUpdate model.{{ type_name }}
+    _ = json.Unmarshal(body, &toUpdate)
+    result, err := model.Put(toUpdate)
+    if err != nil {
+        log.Println("Update {{ type_name }} failed", err)
+        w.WriteHeader(http.StatusInternalServerError)
+        _, _ = w.Write([]byte(err.Error()))
+        return
+    } else {
+        log.Println("{{ type_name }}", toUpdate, "updated")
+        resp, _ := json.Marshal(result)
+        w.WriteHeader(http.StatusCreated)
+        _, _ = w.Write(resp)
+    }
+}
+
+func DeleteHandler(w http.ResponseWriter, r *http.Request) {
+    w.Header().Add("Content-Type", "application/json")
+    {% if is_string(data_type=model.primary_key.data_type) %}
+    pk := mux.Vars(r)["{{ model.primary_key.name }}"]
+    {% else %}
+    pkStr := mux.Vars(r)["{{ model.primary_key.name }}"]
+    var pk {{ data_type(data_type=model.primary_key.data_type) }}
+    _, err := fmt.Sscan(pkStr, &pk)
+    {% endif %}
+    if err != nil {
+        log.Println("Delete {{ model.name }} failed", err)
+        w.WriteHeader(http.StatusInternalServerError)
+        _, _ = w.Write([]byte(err.Error()))
+        return
+    } else {
+        log.Println("{{ model.name }} {{ model.primary_key.name }}=", pk, "deleted")
+        w.WriteHeader(http.StatusNoContent)
+    }
+}
+
+func PingPongHandler(w http.ResponseWriter, r *http.Request) {
+	_, _ = w.Write([]byte("pong"))
+}

@@ -1,0 +1,77 @@
+name: Release
+
+on:
+  push:
+    tags: 
+      - 'v*'
+jobs:
+  build-binary:
+    strategy:
+      matrix:
+        target:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+    runs-on: ${{ matrix.target }}
+    name: Build
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+      - name: Build binary
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release
+      - name: Compress
+        if: matrix.target != 'windows-latest'
+        run: |
+          chmod +x target/release/auto-api
+          zip auto-api-${{ matrix.target }}.zip target/release/auto-api
+      - name: Compress
+        if: matrix.target == 'windows-latest'
+        run: |
+          tar.exe -a -c -f auto-api-${{ matrix.target }}.zip target/release/auto-api.exe
+      - uses: actions/upload-artifact@master
+        with:
+          name: auto-api-${{ matrix.target }}.zip
+          path: auto-api-${{ matrix.target }}.zip
+  release-binary:
+    name: Release
+    needs: build-binary
+    runs-on: ubuntu-latest
+    steps:
+      - name: download productions
+        uses: actions/download-artifact@master
+        with:
+          name: auto-api-ubuntu-latest.zip
+          path: .
+      - uses: actions/download-artifact@master
+        with:
+          name: auto-api-macos-latest.zip
+          path: .
+      - uses: actions/download-artifact@master
+        with:
+          name: auto-api-windows-latest.zip
+          path: .
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body: ${{ github.event.head_commit.message }}
+          files: |
+            auto-api-ubuntu-latest.zip
+            auto-api-macos-latest.zip
+            auto-api-windows-latest.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  release-docker:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build the Docker image
+      run: |
+        docker build . -t ${{ secrets.DOCKER_USERNAME }}/auto-api:${GITHUB_REF##*/}
+        echo "${{ secrets.DOCKER_PASSWORD }}" | docker login --username "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+        docker push ${{ secrets.DOCKER_USERNAME }}/auto-api:${GITHUB_REF##*/}

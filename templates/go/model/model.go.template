@@ -1,0 +1,71 @@
+package model
+
+import (
+    "{{ model.name | singular | camel_case }}/infrastructure"
+    {% for extra_import in golang.imports.model %}"{{ extra_import }}"
+    {% endfor %}
+)
+
+{%- set type_name = model.name | singular | pascal_case -%}
+{%- set table_name = model.name | pluralize | pascal_case -%}
+{%- set all_field_names = model.fields | map(attribute="name") | map_case(case="snake") | join(sep=", ") %}
+
+type {{ type_name }} struct {
+    {{ model.primary_key.name | pascal_case }} {{ data_type(data_type=model.primary_key.data_type) }} `json:"{{ model.primary_key.name | snake_case }}"` 
+    {% for field in model.fields %}{{ field.name | pascal_case }} {{ data_type(data_type=field.data_type) }} `json:"{{ field.name | snake_case }}"`
+    {% endfor %}
+}
+
+
+func Create(object {{ type_name }}) ({{ type_name }}, error) {
+    row := infrastructure.DB.QueryRow(`
+    INSERT INTO {{ table_name }}({{ all_field_names }})
+    VALUES ({% for field in model.fields %}${{loop.index}}{% if not loop.last %}, {% endif %}{% endfor %}) RETURNING {{ model.primary_key.name | snake_case }};`, {{ model.fields | map(attribute="name") | map_case(case="pascal") | map_prefix(prefix="object.") | join(sep=", ") }})
+    err := row.Scan(&object.{{ model.primary_key.name | pascal_case }})
+    return object, err
+}
+
+func Get({{ model.primary_key.name | camel_case }} {{ data_type(data_type=model.primary_key.data_type) }}) ({{ type_name }}, error) {
+    row := infrastructure.DB.QueryRow(`
+		SELECT {{ all_field_names }}
+		FROM {{ table_name }} WHERE {{ model.primary_key.name | snake_case }}=$1;`, {{ model.primary_key.name}});
+    object := {{ type_name }} { {{ model.primary_key.name | pascal_case }}: {{ model.primary_key.name | camel_case }} }
+    err := row.Scan({{ model.fields | map(attribute="name") | map_case(case="pascal") | map_prefix(prefix="&object.") | join(sep=", ") }})
+    return object, err
+}
+
+func Scan(offset uint64, limit uint64) ([]{{ type_name }}, error) {
+    rows, err := infrastructure.DB.Query(`
+        SELECT {{ model.primary_key.name | snake_case }}{% if all_field_names | length != 0 %}, {% endif %}{{ all_field_names }}
+        FROM {{ table_name }}
+        LIMIT $1 OFFSET $2;`, limit, offset)
+    if err != nil {
+        return nil, err
+    }
+    var result []{{ type_name }}
+    for rows.Next() {
+        var scanned {{ type_name }}
+        err := rows.Scan(&scanned.{{ model.primary_key.name | pascal_case }}{% if all_field_names | length != 0 %}, {% endif %}{{ model.fields | map(attribute="name") | map_case(case="pascal") | map_prefix(prefix="&scanned.") | join(sep=", ") }})
+        if err != nil {
+            return result, err
+        }
+        result = append(result, scanned)
+    }
+    return result, nil
+}
+
+func Put(object {{ type_name }}) ({{ type_name }}, error) {
+    row := infrastructure.DB.QueryRow(`
+        UPDATE {{ table_name }}
+        SET {{ all_field_names }}
+        WHERE id=${{ model.fields | length + 1 }}
+        RETURNING {{ all_field_names }};
+        `, {{ model.fields | map(attribute="name") | map_case(case="pascal") | map_prefix(prefix="object.") | join(sep=", ") }}, object.Id)
+    err := row.Scan({{ model.fields | map(attribute="name") | map_case(case="pascal") | map_prefix(prefix="&object.") | join(sep=", ") }})
+    return object, err
+}
+
+func Delete({{ model.primary_key.name | pascal_case }} {{ data_type(data_type=model.primary_key.data_type) }}) error {
+    _, err := infrastructure.DB.Exec(`DELETE FROM {{ table_name }} WHERE {{ model.primary_key.name | snake_case }}=$1;`, {{ model.primary_key.name | pascal_case }})
+    return err
+}

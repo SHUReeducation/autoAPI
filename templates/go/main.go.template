@@ -1,0 +1,23 @@
+package main
+
+import (
+    "log"
+    "{{ model.name | singular | camel_case }}/handler"
+    "net/http"
+    "github.com/gorilla/mux"
+)
+
+func main() {
+    r := mux.NewRouter()
+    r.HandleFunc("/ping", handler.PingPongHandler)
+    r.HandleFunc("/{{ model.name | pluralize | kebab_case }}", handler.PostHandler).Methods("POST")
+    r.HandleFunc("/{{ model.name | pluralize | kebab_case }}/{id:[0-9]+}", handler.GetHandler).Methods("GET")
+    r.HandleFunc("/{{ model.name | pluralize | kebab_case }}", handler.ScanHandler).Queries("limit", "{limit}").Queries("offset", "{offset}").Methods("GET")
+    r.HandleFunc("/{{ model.name | pluralize | kebab_case }}/{id:[0-9]+}", handler.PutHandler).Methods("PUT")
+    r.HandleFunc("/{{ model.name | pluralize | kebab_case }}/{id:[0-9]+}", handler.DeleteHandler).Methods("DELETE")
+
+    err := http.ListenAndServe(":8000", r)
+    if err != nil {
+    	log.Fatal("ListenAndServe: ", err)
+    }
+}
