@@ -17,6 +17,11 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: nightly
+      - name: Run clippy
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy 
+          args: -- -D warnings
       - name: Run unit tests
         uses: actions-rs/cargo@v1
         with:

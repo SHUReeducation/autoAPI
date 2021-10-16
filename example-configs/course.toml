@@ -1,0 +1,18 @@
+[api]
+name = "course"
+[[api.fields]]
+name = "name"
+type = "string"
+[[api.fields]]
+name = "start"
+type = "tinyint"
+[[api.fields]]
+name = "end"
+type = "tinyint"
+
+[implementation]
+framework = "golang"
+
+[implemention.database]
+engine = "pgsql"
+url = "postgresql://localhost:5432/postgres"
