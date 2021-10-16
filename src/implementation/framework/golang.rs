@@ -1,4 +1,4 @@
-//! Golang specific tools.
+//! Trivial golang web specific tools.
 
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, path::Path};
@@ -7,7 +7,7 @@ use tera::{Result, Tera, Value};
 use crate::{
     model::{data_type::DataType, Model},
     render::render_simple,
-    technology::Technology,
+    implementation::Implementation,
 };
 
 /// "imports" for different golang files
@@ -60,7 +60,7 @@ fn data_type_is_string(args: &HashMap<String, Value>) -> Result<Value> {
 }
 
 impl Golang {
-    pub fn new(technology: &Technology, model: &Model) -> Self {
+    pub fn new(technology: &Implementation, model: &Model) -> Self {
         let imports_model = if model
             .fields
             .iter()
@@ -71,8 +71,8 @@ impl Golang {
             vec![]
         };
         let (db_driver, imports_database) = match technology.database {
-            crate::technology::DataBase::PgSQL => ("pgsql", "github.com/lib/pq"),
-            crate::technology::DataBase::MySQL => ("mysql", "github.com/go-sql-driver/mysql"),
+            crate::implementation::DataBase::PgSQL => ("pgsql", "github.com/lib/pq"),
+            crate::implementation::DataBase::MySQL => ("mysql", "github.com/go-sql-driver/mysql"),
         };
         Self {
             imports: Imports {
@@ -86,13 +86,13 @@ impl Golang {
 
 pub fn register(
     tera: &mut Tera,
-    technology: &Technology,
+    implementation: &Implementation,
     model: &Model,
     context: &mut tera::Context,
 ) {
     tera.register_function("data_type", data_type_in_template);
     tera.register_function("is_string", data_type_is_string);
-    let golang = Golang::new(technology, model);
+    let golang = Golang::new(implementation, model);
     context.insert("golang", &golang);
 }
 

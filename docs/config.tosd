@@ -1,0 +1,99 @@
+[toml-schema]
+version = "1.0"
+
+[types]
+[types.field]
+[types.field.name]
+type = "string"
+[types.field.type]
+type = "string"
+allowedvalues = [
+    "int",
+    "serial",
+    "integer",
+    "small_int",
+    "tiny_int",
+    "medium_int",
+    "big_int",
+    "big_serial",
+    "unsigned_serial",
+    "uint",
+    "unsigned_tiny_int",
+    "unsigned_tiny_integer",
+    "unsigned",
+    "unsigned_medium_int",
+    "unsigned_medium_integer",
+    "unsigned_big_int",
+    "unsigned_big_integer",
+    "float",
+    "float32",
+    "double",
+    "float64",
+    "string",
+    "char(\\d+)",
+    "varchar(\\d+)",
+    "tiny_text",
+    "text",
+    "medium_text",
+    "long_text",
+    "tiny_blob",
+    "blob",
+    "medium_blob",
+    "long_blob",
+    "bool",
+    "date",
+    "date_time",
+    "time",
+    "timestamp",
+]
+
+[elements]
+[elements.api]
+type = "table"
+optional = true
+[elements.api.name]
+type = "string"
+[elements.api.fields]
+type = "array"
+arraytype = "string"
+[elements.api.fields.elements]
+type = "array"
+arraytypeof = "field"
+[elements.implementation]
+type = "table"
+[elements.implementation.framework]
+type = "string"
+allowedvalues = ["golang"]
+optional = true
+default = "golang"
+[elements.implementation.database]
+type = "table"
+[elements.implementation.database.engine]
+type = "string"
+allowedvalues = ["postgres", "pgsql", "postgresql"]
+optional = true
+default = "pgsql"
+[elements.implementation.database.url]
+type = "string"
+optional = true
+[elements.cicd]
+[elements.cicd.docker]
+type = "table"
+optional = true
+[elements.cicd.docker.generate_file]
+type = "bool"
+default = true
+[elements.cicd.docker.username]
+type = string
+optional = true
+[elements.cicd.docker.tag]
+type = string
+optional = true
+[elements.cicd.k8s]
+type = "bool"
+optional = true
+default = true
+[elements.cicd.github_actions]
+type = "bool"
+optional = true
+default = true
