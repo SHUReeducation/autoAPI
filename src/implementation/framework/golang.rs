@@ -5,9 +5,9 @@ use std::{collections::HashMap, path::Path};
 use tera::{Result, Tera, Value};
 
 use crate::{
+    implementation::Implementation,
     model::{data_type::DataType, Model},
     render::render_simple,
-    implementation::Implementation,
 };
 
 /// "imports" for different golang files
@@ -29,17 +29,17 @@ pub struct Golang {
 
 // TODO: It is highly possible that each language needs `data_type`, `register` and `render`, maybe we can add a trait.
 /// Get the string representing of a data_type in Golang.
-fn data_type(data_type: DataType) -> String {
+fn data_type(data_type: &DataType) -> String {
     match data_type {
-        DataType::Int(x) if x <= 8 => "int8".to_string(),
-        DataType::Int(x) if x <= 16 => "int16".to_string(),
-        DataType::Int(x) if x <= 32 => "int32".to_string(),
+        DataType::Int(x) if *x <= 8 => "int8".to_string(),
+        DataType::Int(x) if *x <= 16 => "int16".to_string(),
+        DataType::Int(x) if *x <= 32 => "int32".to_string(),
         DataType::Int(_) => "int64".to_string(),
-        DataType::UInt(x) if x <= 8 => "uint8".to_string(),
-        DataType::UInt(x) if x <= 16 => "uint16".to_string(),
-        DataType::UInt(x) if x <= 32 => "uint32".to_string(),
+        DataType::UInt(x) if *x <= 8 => "uint8".to_string(),
+        DataType::UInt(x) if *x <= 16 => "uint16".to_string(),
+        DataType::UInt(x) if *x <= 32 => "uint32".to_string(),
         DataType::UInt(_) => "uint64".to_string(),
-        DataType::Float(x) if x <= 32 => "float32".to_string(),
+        DataType::Float(x) if *x <= 32 => "float32".to_string(),
         DataType::Float(_) => "float64".to_string(),
         DataType::String(_) => "string".to_string(),
         DataType::DateTime => "time".to_string(),
@@ -48,7 +48,7 @@ fn data_type(data_type: DataType) -> String {
 
 fn data_type_in_template(args: &HashMap<String, Value>) -> Result<Value> {
     let data_type_value: DataType = serde_json::from_value(args.get("data_type").unwrap().clone())?;
-    Ok(Value::String(data_type(data_type_value)))
+    Ok(Value::String(data_type(&data_type_value)))
 }
 
 /// A function which can be used in the template for judging whether the datatype is a string

@@ -1,7 +1,7 @@
 mod cli;
 mod file;
 use anyhow::anyhow;
-use std::{fs::File, io::Read, path::PathBuf};
+use std::{ffi::OsStr, fs::File, io::Read, path::PathBuf};
 
 use structopt::StructOpt;
 
@@ -18,8 +18,8 @@ pub fn from_cli_config() -> anyhow::Result<Config> {
     let mut file_config: file::Config = match cli_config
         .config
         .extension()
-        .and_then(|it| it.to_str())
-        .ok_or(anyhow!("Cannot open config file"))?
+        .and_then(OsStr::to_str)
+        .ok_or_else(|| anyhow!("Cannot open config file"))?
     {
         "toml" => {
             let mut content = String::new();
@@ -64,17 +64,15 @@ pub fn from_cli_config() -> anyhow::Result<Config> {
         }
         let try_load_from_db = if let Some(addr) = cli_config.load_from_db {
             Some(addr)
-        } else if let Some(addr) = file_config.implementation.database.url {
-            Some(addr)
         } else {
-            None
+            file_config.implementation.database.url.clone()
         };
         if try_load_from_db.is_some() {
             if cli_config.name.is_none() {
                 return Err(anyhow!("I need to know API name before load it from db!"));
             }
+            todo!("load api config from database");
         }
-        todo!("load api config from database");
     }
 
     if let Some(generate_docker) = cli_config.generate_docker {
@@ -92,15 +90,19 @@ pub fn from_cli_config() -> anyhow::Result<Config> {
     file_config.cicd.kubernetes = match file_config.cicd.kubernetes {
         Some(false) => Some(false),
         Some(true) if file_config.implementation.database.url.is_none() => {
-            return Err(anyhow!("generating kubernetes yaml file requires database connection string"));
+            return Err(anyhow!(
+                "generating kubernetes yaml file requires database connection string"
+            ));
         }
         Some(true) if file_config.cicd.docker.username.is_none() => {
             // todo: support other docker image registry than dockerhub
-            return Err(anyhow!("generating kubernetes yaml file requires docker username"));
+            return Err(anyhow!(
+                "generating kubernetes yaml file requires docker username"
+            ));
         }
         Some(true) => Some(true),
         None if file_config.implementation.database.url.is_none() => Some(false),
-        None => Some(true)
+        None => Some(true),
     };
     Ok(Config {
         output: cli_config.output,

@@ -1,6 +1,3 @@
-use std::fs::OpenOptions;
-
-use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -10,6 +7,7 @@ pub struct Field {
     pub data_type: String,
 }
 
+#[allow(clippy::upper_case_acronyms)]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct API {
     pub name: String,
@@ -54,6 +52,7 @@ impl Default for Docker {
     }
 }
 
+#[allow(clippy::upper_case_acronyms)]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct CICD {
     #[serde(default)]
@@ -83,4 +82,3 @@ pub struct Config {
     #[serde(default)]
     pub cicd: CICD,
 }
-

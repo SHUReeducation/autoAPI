@@ -1,14 +1,14 @@
 use implementation::Implementation;
 
 use crate::{
-    model::{data_type::DataType, Field, Model},
     implementation::framework::golang,
+    model::{data_type::DataType, Field, Model},
 };
 
+mod config;
+mod implementation;
 mod model;
 mod render;
-mod implementation;
-mod config;
 
 fn main() {
     let mut tera = render::load_templates();
@@ -23,11 +23,17 @@ fn main() {
             name: "id".to_string(),
             data_type: DataType::UInt(64),
         },
-        fields: config.generate_config.api.unwrap().fields.into_iter()
+        fields: config
+            .generate_config
+            .api
+            .unwrap()
+            .fields
+            .into_iter()
             .map(|it| Field {
                 name: it.name,
                 data_type: it.data_type.into(),
-            }).collect(),
+            })
+            .collect(),
     };
     let mut context = tera::Context::new();
     context.insert("model", &model);
